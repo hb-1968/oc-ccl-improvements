@@ -1,0 +1,80 @@
+{
+ "stage": "s17d_mechanism",
+ "what": "closing-loss gradient into sam_mask_decoder.pred_obj_score_head, one real beetle training pair (global step 0, channel 4 absent), excl objective, no objectness term, base SAM 2 on CPU fp32; hard = SAM 2's -1024 torch.where, ste20 = tracker.soft_sentinel_heads K=20",
+ "pair": "CyclePairs(beetle, epoch 0)[0]",
+ "gates": {
+  "hard": {
+   "loss": 18.915700912475586,
+   "score_head_grad_norm": 0.0,
+   "loss_has_graph_to_score_head": false,
+   "fwd_obj": [
+    4.932,
+    5.283,
+    5.356,
+    -1.49,
+    5.46
+   ],
+   "cls_obj": [
+    5.065,
+    6.729,
+    3.808,
+    -0.97,
+    3.673
+   ],
+   "bce_per_channel": [
+    0.013,
+    0.026,
+    0.024,
+    18.349,
+    0.98
+   ],
+   "elapsed_s": 18.5
+  },
+  "ste20": {
+   "loss": 1.0008039474487305,
+   "score_head_grad_norm": 0.5657821893692017,
+   "loss_has_graph_to_score_head": true,
+   "fwd_obj": [
+    4.932,
+    5.283,
+    5.356,
+    -1.49,
+    5.46
+   ],
+   "cls_obj": [
+    5.065,
+    6.729,
+    3.808,
+    -0.97,
+    3.673
+   ],
+   "bce_per_channel": [
+    0.013,
+    0.026,
+    0.024,
+    0.434,
+    0.98
+   ],
+   "elapsed_s": 21.7
+  }
+ },
+ "smoke_gate_effect_at_base_weights": {
+  "pure_soft_first_design": {
+   "forward": -1.398,
+   "closing": -5.35,
+   "found_count": -0.333,
+   "n_pairs": 3
+  },
+  "straight_through": {
+   "forward": 0.0,
+   "closing": 0.0,
+   "found_count": 0.0,
+   "n_pairs": 3,
+   "plain_loss": [
+    4.717,
+    0.798
+   ]
+  }
+ },
+ "replay_proof_under_soft_gate_rel_err": 4.88e-07
+}

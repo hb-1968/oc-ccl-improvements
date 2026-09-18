@@ -1,0 +1,817 @@
+{
+  "arch": {
+    "n_pairs": 120,
+    "loss": {
+      "mean": 1.3035363324607412,
+      "median": 0.3335915803909302,
+      "p75": 0.6401948630809784,
+      "p90": 4.6684450149536145,
+      "p95": 7.133925127983091,
+      "max": 16.619619369506836,
+      "top5_share": 0.3798568659701166,
+      "top10_share": 0.5859013634470585,
+      "top20_share": 0.7850379505876625,
+      "n_over_3x_median": 19,
+      "n_over_10x_median": 14
+    },
+    "bce_share": {
+      "unfound_channels": 0.6603766686049338,
+      "found_channels": 0.339621336167735,
+      "total_bce": 121.4343022890389,
+      "total_dice": 34.990058064460754
+    },
+    "pairs_with_an_unfound_channel": 15,
+    "found_rate": 0.9700000000000001,
+    "per_trait": {
+      "1": {
+        "n": 118,
+        "unfound": 7,
+        "found_rate": 0.940677966101695,
+        "fwd_iou_when_found": 0.5185054054054054,
+        "cls_iou_when_found": 0.5849603603603604,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.1159864864864865,
+        "bce_share_when_unfound": 7.027874285714286,
+        "dice_when_found": 0.35988018018018025,
+        "dice_when_unfound": 1.0
+      },
+      "2": {
+        "n": 119,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.6881285714285714,
+        "cls_iou_when_found": 0.6351201680672268,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.177261512605042,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.27393529411764705,
+        "dice_when_unfound": null
+      },
+      "3": {
+        "n": 120,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.8527816666666667,
+        "cls_iou_when_found": 0.8527625000000001,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.023126749999999998,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.102215,
+        "dice_when_unfound": null
+      },
+      "4": {
+        "n": 118,
+        "unfound": 10,
+        "found_rate": 0.9152542372881356,
+        "fwd_iou_when_found": 0.3931027777777778,
+        "cls_iou_when_found": 0.5219342592592593,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.02797185185185185,
+        "bce_share_when_unfound": 2.6386119999999997,
+        "dice_when_found": 0.36218055555555545,
+        "dice_when_unfound": 0.9999
+      },
+      "5": {
+        "n": 119,
+        "unfound": 1,
+        "found_rate": 0.9915966386554622,
+        "fwd_iou_when_found": 0.5493847457627118,
+        "cls_iou_when_found": 0.667986440677966,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.012516016949152541,
+        "bce_share_when_unfound": 4.611140000000001,
+        "dice_when_found": 0.26478389830508475,
+        "dice_when_unfound": 1.0
+      }
+    },
+    "takeovers": {
+      "n": 17,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 6,
+        "2": 8,
+        "3": 3,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.7308953645253088,
+      "loss_vs_fwd_miou": -0.4350984127319306
+    },
+    "top": [
+      {
+        "step": 87,
+        "ref": "impunctatus/beetle_102_1118",
+        "query": "melanarius/beetle_109_374",
+        "loss": 16.619619369506836,
+        "bce": 16.102039337158203,
+        "dice": 0.5175806283950806,
+        "fwd_miou": 0.1330181874674035,
+        "cls_miou": 0.46882417136977333,
+        "share_of_epoch": 0.10624700258087724,
+        "tags": "\u2014"
+      },
+      {
+        "step": 86,
+        "ref": "pensylvanicus/beetle_105_232",
+        "query": "impunctatus/beetle_102_1118",
+        "loss": 13.794500350952148,
+        "bce": 13.115721702575684,
+        "dice": 0.6787785887718201,
+        "fwd_miou": 0.16153891061941736,
+        "cls_miou": 0.15948777211989498,
+        "share_of_epoch": 0.08818639475453977,
+        "tags": "unfound t1,t4,t5"
+      },
+      {
+        "step": 50,
+        "ref": "grossus/beetle_274_183",
+        "query": "dubius/beetle_237_994",
+        "loss": 9.971891403198242,
+        "bce": 9.485799789428711,
+        "dice": 0.48609134554862976,
+        "fwd_miou": 0.26415184045403894,
+        "cls_miou": 0.4049694519048521,
+        "share_of_epoch": 0.06374896729558915,
+        "tags": "unfound t1"
+      },
+      {
+        "step": 68,
+        "ref": "melanarius melanarius/beetle_861_1136",
+        "query": "grossus/beetle_793_1109",
+        "loss": 9.857284545898438,
+        "bce": 9.117325782775879,
+        "dice": 0.7399592399597168,
+        "fwd_miou": 0.15641965528708837,
+        "cls_miou": 0.10079316268064993,
+        "share_of_epoch": 0.06301630099363642,
+        "tags": "unfound t1,t4; takeover t3"
+      },
+      {
+        "step": 2,
+        "ref": "grossus/beetle_1106_1250",
+        "query": "aestivus/beetle_157_1159",
+        "loss": 9.17557144165039,
+        "bce": 8.63270092010498,
+        "dice": 0.5428701639175415,
+        "fwd_miou": 0.5147973334586892,
+        "cls_miou": 0.5377553146312157,
+        "share_of_epoch": 0.05865820034547402,
+        "tags": "unfound t1"
+      }
+    ]
+  },
+  "base": {
+    "n_pairs": 120,
+    "loss": {
+      "mean": 1.4013427559286356,
+      "median": 0.48269023001194,
+      "p75": 0.9459447860717773,
+      "p90": 4.2859347820282,
+      "p95": 7.267399024963377,
+      "max": 16.63367462158203,
+      "top5_share": 0.35956113873298856,
+      "top10_share": 0.5542836385544481,
+      "top20_share": 0.7271750277528783,
+      "n_over_3x_median": 18,
+      "n_over_10x_median": 10
+    },
+    "bce_share": {
+      "unfound_channels": 0.6538742544096429,
+      "found_channels": 0.34612610827204376,
+      "total_bce": 127.25532384682447,
+      "total_dice": 40.90580729395151
+    },
+    "pairs_with_an_unfound_channel": 16,
+    "found_rate": 0.9683333333333335,
+    "per_trait": {
+      "1": {
+        "n": 118,
+        "unfound": 7,
+        "found_rate": 0.940677966101695,
+        "fwd_iou_when_found": 0.5254324324324324,
+        "cls_iou_when_found": 0.5179045045045045,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.08589225225225228,
+        "bce_share_when_unfound": 7.027874285714286,
+        "dice_when_found": 0.4007117117117117,
+        "dice_when_unfound": 1.0
+      },
+      "2": {
+        "n": 119,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.6822420168067227,
+        "cls_iou_when_found": 0.4991831932773109,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.2050678991596639,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.33894621848739503,
+        "dice_when_unfound": null
+      },
+      "3": {
+        "n": 120,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.85043,
+        "cls_iou_when_found": 0.7757100000000001,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.05436458333333334,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.15678583333333335,
+        "dice_when_unfound": null
+      },
+      "4": {
+        "n": 118,
+        "unfound": 11,
+        "found_rate": 0.9067796610169492,
+        "fwd_iou_when_found": 0.40315981308411214,
+        "cls_iou_when_found": 0.5133196261682244,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.007721308411214953,
+        "bce_share_when_unfound": 2.6729745454545455,
+        "dice_when_found": 0.39035700934579437,
+        "dice_when_unfound": 0.9999000000000001
+      },
+      "5": {
+        "n": 119,
+        "unfound": 1,
+        "found_rate": 0.9915966386554622,
+        "fwd_iou_when_found": 0.5492305084745763,
+        "cls_iou_when_found": 0.590321186440678,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.023384237288135587,
+        "bce_share_when_unfound": 4.611140000000001,
+        "dice_when_found": 0.323857627118644,
+        "dice_when_unfound": 1.0
+      }
+    },
+    "takeovers": {
+      "n": 37,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 5,
+        "2": 24,
+        "3": 7,
+        "4": 1,
+        "5": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.7420264862611265,
+      "loss_vs_fwd_miou": -0.4127254817594962
+    },
+    "top": [
+      {
+        "step": 87,
+        "ref": "impunctatus/beetle_102_1118",
+        "query": "melanarius/beetle_109_374",
+        "loss": 16.63367462158203,
+        "bce": 16.11581802368164,
+        "dice": 0.5178568363189697,
+        "fwd_miou": 0.13240801015060405,
+        "cls_miou": 0.4682921128728676,
+        "share_of_epoch": 0.0989150973902842,
+        "tags": "\u2014"
+      },
+      {
+        "step": 86,
+        "ref": "pensylvanicus/beetle_105_232",
+        "query": "impunctatus/beetle_102_1118",
+        "loss": 14.193973541259766,
+        "bce": 13.417174339294434,
+        "dice": 0.7767994999885559,
+        "fwd_miou": 0.22999590858612426,
+        "cls_miou": 0.13544198719082198,
+        "share_of_epoch": 0.08440698204876226,
+        "tags": "unfound t1,t4,t5"
+      },
+      {
+        "step": 50,
+        "ref": "grossus/beetle_274_183",
+        "query": "dubius/beetle_237_994",
+        "loss": 10.294626235961914,
+        "bce": 9.727177619934082,
+        "dice": 0.5674485564231873,
+        "fwd_miou": 0.29168664320642446,
+        "cls_miou": 0.40170880398524683,
+        "share_of_epoch": 0.061218821450644535,
+        "tags": "unfound t1"
+      },
+      {
+        "step": 68,
+        "ref": "melanarius melanarius/beetle_861_1136",
+        "query": "grossus/beetle_793_1109",
+        "loss": 9.711579322814941,
+        "bce": 9.025227546691895,
+        "dice": 0.6863517165184021,
+        "fwd_miou": 0.15621694236626263,
+        "cls_miou": 0.1597197863291102,
+        "share_of_epoch": 0.05775162953369983,
+        "tags": "unfound t1,t4"
+      },
+      {
+        "step": 2,
+        "ref": "grossus/beetle_1106_1250",
+        "query": "aestivus/beetle_157_1159",
+        "loss": 9.630353927612305,
+        "bce": 9.075364112854004,
+        "dice": 0.5549899339675903,
+        "fwd_miou": 0.5307702269242756,
+        "cls_miou": 0.25574239483916195,
+        "share_of_epoch": 0.0572686083095977,
+        "tags": "unfound t1; takeover t3"
+      }
+    ]
+  },
+  "carrier": {
+    "n_pairs": 120,
+    "loss": {
+      "mean": 1.3460031069194278,
+      "median": 0.415367066860199,
+      "p75": 0.7589536756277084,
+      "p90": 4.052065181732183,
+      "p95": 7.219060182571409,
+      "max": 16.62799835205078,
+      "top5_share": 0.37260519232105654,
+      "top10_share": 0.5713597279960787,
+      "top20_share": 0.7577484658066997,
+      "n_over_3x_median": 19,
+      "n_over_10x_median": 12
+    },
+    "bce_share": {
+      "unfound_channels": 0.6729916341172375,
+      "found_channels": 0.3270082252578152,
+      "total_bce": 123.64043738692999,
+      "total_dice": 37.87993600964546
+    },
+    "pairs_with_an_unfound_channel": 16,
+    "found_rate": 0.9683333333333335,
+    "per_trait": {
+      "1": {
+        "n": 118,
+        "unfound": 7,
+        "found_rate": 0.940677966101695,
+        "fwd_iou_when_found": 0.5246153153153154,
+        "cls_iou_when_found": 0.5663432432432434,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0779227027027027,
+        "bce_share_when_unfound": 7.027874285714286,
+        "dice_when_found": 0.37950000000000006,
+        "dice_when_unfound": 1.0
+      },
+      "2": {
+        "n": 119,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.6838857142857142,
+        "cls_iou_when_found": 0.5721075630252103,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.18973310924369755,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.30500840336134455,
+        "dice_when_unfound": null
+      },
+      "3": {
+        "n": 120,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.8507841666666667,
+        "cls_iou_when_found": 0.80428,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.03901983333333334,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.1435408333333333,
+        "dice_when_unfound": null
+      },
+      "4": {
+        "n": 118,
+        "unfound": 11,
+        "found_rate": 0.9067796610169492,
+        "fwd_iou_when_found": 0.4002598130841121,
+        "cls_iou_when_found": 0.508029906542056,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.02828336448598131,
+        "bce_share_when_unfound": 2.6729745454545455,
+        "dice_when_found": 0.37282897196261683,
+        "dice_when_unfound": 0.9999000000000001
+      },
+      "5": {
+        "n": 119,
+        "unfound": 1,
+        "found_rate": 0.9915966386554622,
+        "fwd_iou_when_found": 0.5529864406779662,
+        "cls_iou_when_found": 0.6363949152542373,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.012670169491525425,
+        "bce_share_when_unfound": 4.611140000000001,
+        "dice_when_found": 0.2798711864406779,
+        "dice_when_unfound": 1.0
+      }
+    },
+    "takeovers": {
+      "n": 30,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 6,
+        "2": 18,
+        "3": 6,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.7430981174228419,
+      "loss_vs_fwd_miou": -0.41815019044151963
+    },
+    "top": [
+      {
+        "step": 87,
+        "ref": "impunctatus/beetle_102_1118",
+        "query": "melanarius/beetle_109_374",
+        "loss": 16.62799835205078,
+        "bce": 16.110214233398438,
+        "dice": 0.5177841186523438,
+        "fwd_miou": 0.13275925044550457,
+        "cls_miou": 0.4683665197755168,
+        "share_of_epoch": 0.10294675563631606,
+        "tags": "\u2014"
+      },
+      {
+        "step": 86,
+        "ref": "pensylvanicus/beetle_105_232",
+        "query": "impunctatus/beetle_102_1118",
+        "loss": 14.140380859375,
+        "bce": 13.361310005187988,
+        "dice": 0.7790709137916565,
+        "fwd_miou": 0.15807449789817843,
+        "cls_miou": 0.12663618939076926,
+        "share_of_epoch": 0.08754549417879767,
+        "tags": "unfound t1,t4,t5"
+      },
+      {
+        "step": 50,
+        "ref": "grossus/beetle_274_183",
+        "query": "dubius/beetle_237_994",
+        "loss": 10.185667037963867,
+        "bce": 9.632072448730469,
+        "dice": 0.5535944104194641,
+        "fwd_miou": 0.29050776742295625,
+        "cls_miou": 0.37274995438552844,
+        "share_of_epoch": 0.06306119073080259,
+        "tags": "unfound t1"
+      },
+      {
+        "step": 68,
+        "ref": "melanarius melanarius/beetle_861_1136",
+        "query": "grossus/beetle_793_1109",
+        "loss": 9.819632530212402,
+        "bce": 9.08979320526123,
+        "dice": 0.7298397421836853,
+        "fwd_miou": 0.15163191327682796,
+        "cls_miou": 0.1244523946657338,
+        "share_of_epoch": 0.0607950090638251,
+        "tags": "unfound t1,t4; takeover t3"
+      },
+      {
+        "step": 2,
+        "ref": "grossus/beetle_1106_1250",
+        "query": "aestivus/beetle_157_1159",
+        "loss": 9.409650802612305,
+        "bce": 8.821895599365234,
+        "dice": 0.5877556800842285,
+        "fwd_miou": 0.5365232798753304,
+        "cls_miou": 0.2512219544755778,
+        "share_of_epoch": 0.05825674271131512,
+        "tags": "unfound t1; takeover t3"
+      }
+    ]
+  },
+  "excl": {
+    "n_pairs": 120,
+    "loss": {
+      "mean": 1.3421497067436576,
+      "median": 0.43192650377750397,
+      "p75": 0.7540959715843201,
+      "p90": 4.0631032943725645,
+      "p95": 7.257081699371336,
+      "max": 16.629356384277344,
+      "top5_share": 0.37434701740776594,
+      "top10_share": 0.5750532770441305,
+      "top20_share": 0.7513638266869185,
+      "n_over_3x_median": 18,
+      "n_over_10x_median": 12
+    },
+    "bce_share": {
+      "unfound_channels": 0.6774463492461775,
+      "found_channels": 0.32255316817468843,
+      "total_bce": 122.8274092739448,
+      "total_dice": 38.23055459558964
+    },
+    "pairs_with_an_unfound_channel": 16,
+    "found_rate": 0.9683333333333335,
+    "per_trait": {
+      "1": {
+        "n": 118,
+        "unfound": 7,
+        "found_rate": 0.940677966101695,
+        "fwd_iou_when_found": 0.5251954954954956,
+        "cls_iou_when_found": 0.5655288288288288,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.08044126126126128,
+        "bce_share_when_unfound": 7.027874285714286,
+        "dice_when_found": 0.37594774774774786,
+        "dice_when_unfound": 1.0
+      },
+      "2": {
+        "n": 119,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.6848319327731092,
+        "cls_iou_when_found": 0.5605126050420168,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.1947717647058824,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.31016218487394964,
+        "dice_when_unfound": null
+      },
+      "3": {
+        "n": 120,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.850365,
+        "cls_iou_when_found": 0.8058866666666666,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.0432665,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.14419166666666666,
+        "dice_when_unfound": null
+      },
+      "4": {
+        "n": 118,
+        "unfound": 11,
+        "found_rate": 0.9067796610169492,
+        "fwd_iou_when_found": 0.40462336448598135,
+        "cls_iou_when_found": 0.5075971962616822,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.007499439252336448,
+        "bce_share_when_unfound": 2.6729745454545455,
+        "dice_when_found": 0.3776915887850466,
+        "dice_when_unfound": 0.9999000000000001
+      },
+      "5": {
+        "n": 119,
+        "unfound": 1,
+        "found_rate": 0.9915966386554622,
+        "fwd_iou_when_found": 0.5529262711864407,
+        "cls_iou_when_found": 0.6255898305084745,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.012857033898305083,
+        "bce_share_when_unfound": 4.611140000000001,
+        "dice_when_found": 0.2876169491525423,
+        "dice_when_unfound": 1.0
+      }
+    },
+    "takeovers": {
+      "n": 29,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 4,
+        "2": 18,
+        "3": 6,
+        "4": 1,
+        "5": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.7437003598024997,
+      "loss_vs_fwd_miou": -0.4237387916130216
+    },
+    "top": [
+      {
+        "step": 87,
+        "ref": "impunctatus/beetle_102_1118",
+        "query": "melanarius/beetle_109_374",
+        "loss": 16.629356384277344,
+        "bce": 16.111581802368164,
+        "dice": 0.5177736282348633,
+        "fwd_miou": 0.1327379964368312,
+        "cls_miou": 0.46838533687918993,
+        "share_of_epoch": 0.1032507544968271,
+        "tags": "\u2014"
+      },
+      {
+        "step": 86,
+        "ref": "pensylvanicus/beetle_105_232",
+        "query": "impunctatus/beetle_102_1118",
+        "loss": 14.158236503601074,
+        "bce": 13.380731582641602,
+        "dice": 0.7775049209594727,
+        "fwd_miou": 0.16118862747387472,
+        "cls_miou": 0.12749792513382863,
+        "share_of_epoch": 0.08790770776453337,
+        "tags": "unfound t1,t4,t5"
+      },
+      {
+        "step": 50,
+        "ref": "grossus/beetle_274_183",
+        "query": "dubius/beetle_237_994",
+        "loss": 10.235027313232422,
+        "bce": 9.678816795349121,
+        "dice": 0.556210458278656,
+        "fwd_miou": 0.2944869758603839,
+        "cls_miou": 0.372533322076622,
+        "share_of_epoch": 0.06354871878180657,
+        "tags": "unfound t1"
+      },
+      {
+        "step": 68,
+        "ref": "melanarius melanarius/beetle_861_1136",
+        "query": "grossus/beetle_793_1109",
+        "loss": 9.802268028259277,
+        "bce": 9.102633476257324,
+        "dice": 0.6996343731880188,
+        "fwd_miou": 0.1559880647884972,
+        "cls_miou": 0.12716229902955067,
+        "share_of_epoch": 0.060861740304922696,
+        "tags": "unfound t1,t4; takeover t3"
+      },
+      {
+        "step": 2,
+        "ref": "grossus/beetle_1106_1250",
+        "query": "aestivus/beetle_157_1159",
+        "loss": 9.466680526733398,
+        "bce": 8.909445762634277,
+        "dice": 0.5572350025177002,
+        "fwd_miou": 0.535769393956204,
+        "cls_miou": 0.25047233576944794,
+        "share_of_epoch": 0.05877809605967623,
+        "tags": "unfound t1; takeover t3"
+      }
+    ]
+  },
+  "found_mask": {
+    "n_pairs": 120,
+    "loss": {
+      "mean": 1.3469690011193356,
+      "median": 0.4159889966249466,
+      "p75": 0.7592343240976334,
+      "p90": 4.050534510612493,
+      "p95": 7.219523477554319,
+      "max": 16.627971649169922,
+      "top5_share": 0.37235844584956684,
+      "top10_share": 0.5709869244453761,
+      "top20_share": 0.7567305049761565,
+      "n_over_3x_median": 19,
+      "n_over_10x_median": 12
+    },
+    "bce_share": {
+      "unfound_channels": 0.6732242123040114,
+      "found_channels": 0.3267735754231597,
+      "total_bce": 123.59772343188524,
+      "total_dice": 38.03855653852224
+    },
+    "pairs_with_an_unfound_channel": 16,
+    "found_rate": 0.9683333333333335,
+    "per_trait": {
+      "1": {
+        "n": 118,
+        "unfound": 7,
+        "found_rate": 0.940677966101695,
+        "fwd_iou_when_found": 0.5241846846846847,
+        "cls_iou_when_found": 0.5620063063063063,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.07810216216216216,
+        "bce_share_when_unfound": 7.027874285714286,
+        "dice_when_found": 0.3816432432432432,
+        "dice_when_unfound": 1.0
+      },
+      "2": {
+        "n": 119,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.6839084033613447,
+        "cls_iou_when_found": 0.5719957983193278,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.1897191596638656,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.3053184873949579,
+        "dice_when_unfound": null
+      },
+      "3": {
+        "n": 120,
+        "unfound": 0,
+        "found_rate": 1.0,
+        "fwd_iou_when_found": 0.8507275,
+        "cls_iou_when_found": 0.8053699999999999,
+        "cls_iou_when_unfound": null,
+        "bce_share_when_found": 0.038372916666666666,
+        "bce_share_when_unfound": null,
+        "dice_when_found": 0.1447075,
+        "dice_when_unfound": null
+      },
+      "4": {
+        "n": 118,
+        "unfound": 11,
+        "found_rate": 0.9067796610169492,
+        "fwd_iou_when_found": 0.401070093457944,
+        "cls_iou_when_found": 0.504273831775701,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.028464485981308407,
+        "bce_share_when_unfound": 2.6729745454545455,
+        "dice_when_found": 0.3765859813084112,
+        "dice_when_unfound": 0.9999000000000001
+      },
+      "5": {
+        "n": 119,
+        "unfound": 1,
+        "found_rate": 0.9915966386554622,
+        "fwd_iou_when_found": 0.5530983050847458,
+        "cls_iou_when_found": 0.63624406779661,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.01264491525423729,
+        "bce_share_when_unfound": 4.611140000000001,
+        "dice_when_found": 0.27967288135593216,
+        "dice_when_unfound": 1.0
+      }
+    },
+    "takeovers": {
+      "n": 30,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 6,
+        "2": 18,
+        "3": 6,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.7427192632921448,
+      "loss_vs_fwd_miou": -0.41815861424124845
+    },
+    "top": [
+      {
+        "step": 87,
+        "ref": "impunctatus/beetle_102_1118",
+        "query": "melanarius/beetle_109_374",
+        "loss": 16.627971649169922,
+        "bce": 16.110187530517578,
+        "dice": 0.5177834630012512,
+        "fwd_miou": 0.13275484228002216,
+        "cls_miou": 0.4683624844822584,
+        "share_of_epoch": 0.10287276863431913,
+        "tags": "\u2014"
+      },
+      {
+        "step": 86,
+        "ref": "pensylvanicus/beetle_105_232",
+        "query": "impunctatus/beetle_102_1118",
+        "loss": 14.139001846313477,
+        "bce": 13.35979175567627,
+        "dice": 0.7792097926139832,
+        "fwd_miou": 0.15746146660439048,
+        "cls_miou": 0.12670802200326864,
+        "share_of_epoch": 0.08747418484614915,
+        "tags": "unfound t1,t4,t5"
+      },
+      {
+        "step": 50,
+        "ref": "grossus/beetle_274_183",
+        "query": "dubius/beetle_237_994",
+        "loss": 10.185361862182617,
+        "bce": 9.63115119934082,
+        "dice": 0.5542108416557312,
+        "fwd_miou": 0.2907497507946441,
+        "cls_miou": 0.3727459587693646,
+        "share_of_epoch": 0.0630140823193812,
+        "tags": "unfound t1"
+      },
+      {
+        "step": 68,
+        "ref": "melanarius melanarius/beetle_861_1136",
+        "query": "grossus/beetle_793_1109",
+        "loss": 9.823395729064941,
+        "bce": 9.090224266052246,
+        "dice": 0.7331715226173401,
+        "fwd_miou": 0.15223962993381526,
+        "cls_miou": 0.12420683086238578,
+        "share_of_epoch": 0.06077469563702944,
+        "tags": "unfound t1,t4; takeover t3"
+      },
+      {
+        "step": 2,
+        "ref": "grossus/beetle_1106_1250",
+        "query": "aestivus/beetle_157_1159",
+        "loss": 9.410902976989746,
+        "bce": 8.823230743408203,
+        "dice": 0.5876726508140564,
+        "fwd_miou": 0.5361789491740755,
+        "cls_miou": 0.25086937831623807,
+        "share_of_epoch": 0.05822271441268789,
+        "tags": "unfound t1; takeover t3"
+      }
+    ]
+  }
+}

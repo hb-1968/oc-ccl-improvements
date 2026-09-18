@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+third_party/
+cache/
+results/inbox/*.zip
+*.tmp
+
+# ── never in the repo: checkouts, model weights, the pixel cache, stray local files ──
+SST/
+SeC/
+sam3/
+oc-ccl-data/
+results/inbox/
+occl-repo.zip
+s5.zip
+per_query_*.csv
+*.part
+*.corrupt
+*.stale

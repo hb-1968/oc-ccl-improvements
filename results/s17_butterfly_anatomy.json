@@ -1,0 +1,410 @@
+{
+  "base": {
+    "n_pairs": 1107,
+    "loss": {
+      "mean": 0.33853017362280535,
+      "median": 0.06282905489206314,
+      "p75": 0.10927633568644524,
+      "p90": 1.1594151020050043,
+      "p95": 2.25813798904419,
+      "max": 6.212244987487793,
+      "top5_share": 0.07222456472805994,
+      "top10_share": 0.1295647133477911,
+      "top20_share": 0.22607130498507766,
+      "n_over_3x_median": 189,
+      "n_over_10x_median": 133
+    },
+    "bce_share": {
+      "unfound_channels": 0.6626807687274593,
+      "found_channels": 0.33732135339836855,
+      "total_bce": 221.15549299039412,
+      "total_dice": 153.59740988910198
+    },
+    "pairs_with_an_unfound_channel": 113,
+    "found_rate": 0.9741683514718745,
+    "per_trait": {
+      "1": {
+        "n": 1097,
+        "unfound": 29,
+        "found_rate": 0.9735642661804923,
+        "fwd_iou_when_found": 0.8395676966292135,
+        "cls_iou_when_found": 0.8521497191011236,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.014966642329528566,
+        "bce_share_when_unfound": 0.698542672413793,
+        "dice_when_found": 0.1146626404494382,
+        "dice_when_unfound": 0.9996000000000002
+      },
+      "2": {
+        "n": 1101,
+        "unfound": 30,
+        "found_rate": 0.9727520435967303,
+        "fwd_iou_when_found": 0.8570512605042018,
+        "cls_iou_when_found": 0.8950784313725489,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0074833619003156805,
+        "bce_share_when_unfound": 0.8386864404761905,
+        "dice_when_found": 0.07413940242763772,
+        "dice_when_unfound": 0.9997833333333335
+      },
+      "3": {
+        "n": 1101,
+        "unfound": 4,
+        "found_rate": 0.9963669391462306,
+        "fwd_iou_when_found": 0.8428176845943482,
+        "cls_iou_when_found": 0.8823541476754787,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.023839572571660084,
+        "bce_share_when_unfound": 1.076165,
+        "dice_when_found": 0.09231859617137649,
+        "dice_when_unfound": 0.99915
+      },
+      "4": {
+        "n": 1103,
+        "unfound": 28,
+        "found_rate": 0.9746146872166818,
+        "fwd_iou_when_found": 0.8614964651162791,
+        "cls_iou_when_found": 0.8811737674418605,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.004873097785160576,
+        "bce_share_when_unfound": 0.6120415178571428,
+        "dice_when_found": 0.08942269767441861,
+        "dice_when_unfound": 0.9996892857142858
+      },
+      "5": {
+        "n": 1098,
+        "unfound": 32,
+        "found_rate": 0.970856102003643,
+        "fwd_iou_when_found": 0.8151312382739212,
+        "cls_iou_when_found": 0.8409414634146342,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.008814870462806674,
+        "bce_share_when_unfound": 0.9475053385416667,
+        "dice_when_found": 0.12222247116749105,
+        "dice_when_unfound": 0.9997687500000001
+      },
+      "6": {
+        "n": 1092,
+        "unfound": 41,
+        "found_rate": 0.9624542124542125,
+        "fwd_iou_when_found": 0.8150610846812559,
+        "cls_iou_when_found": 0.8534065651760229,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.002531938403334693,
+        "bce_share_when_unfound": 0.6991319037940379,
+        "dice_when_found": 0.10342778306374882,
+        "dice_when_unfound": 0.9991951219512196
+      },
+      "7": {
+        "n": 894,
+        "unfound": 7,
+        "found_rate": 0.9921700223713646,
+        "fwd_iou_when_found": 0.8249173618940249,
+        "cls_iou_when_found": 0.7901800450958286,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0018275237111003738,
+        "bce_share_when_unfound": 0.9781135714285715,
+        "dice_when_found": 0.1317694475760992,
+        "dice_when_unfound": 0.9997142857142858
+      },
+      "8": {
+        "n": 891,
+        "unfound": 11,
+        "found_rate": 0.9876543209876543,
+        "fwd_iou_when_found": 0.8759619318181818,
+        "cls_iou_when_found": 0.8690452272727274,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.003906080672799423,
+        "bce_share_when_unfound": 0.9472313636363637,
+        "dice_when_found": 0.08820045454545454,
+        "dice_when_unfound": 0.9998363636363637
+      },
+      "9": {
+        "n": 436,
+        "unfound": 5,
+        "found_rate": 0.9885321100917431,
+        "fwd_iou_when_found": 0.8299587006960557,
+        "cls_iou_when_found": 0.8046069605568447,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0024659989688063937,
+        "bce_share_when_unfound": 0.35871,
+        "dice_when_found": 0.12793967517401392,
+        "dice_when_unfound": 0.9995200000000001
+      },
+      "10": {
+        "n": 437,
+        "unfound": 4,
+        "found_rate": 0.9908466819221968,
+        "fwd_iou_when_found": 0.818371131639723,
+        "cls_iou_when_found": 0.7720152424942262,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.002383129605190806,
+        "bce_share_when_unfound": 0.41271749999999996,
+        "dice_when_found": 0.15159907621247115,
+        "dice_when_unfound": 0.9992000000000001
+      }
+    },
+    "takeovers": {
+      "n": 39,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 5,
+        "2": 2,
+        "3": 0,
+        "4": 1,
+        "5": 8,
+        "6": 9,
+        "7": 2,
+        "8": 5,
+        "9": 7,
+        "10": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.8390678355738685,
+      "loss_vs_fwd_miou": -0.7381664461254025
+    },
+    "top": [
+      {
+        "step": 444,
+        "ref": "39510",
+        "query": "14398",
+        "loss": 6.212244987487793,
+        "bce": 5.659605026245117,
+        "dice": 0.552639901638031,
+        "fwd_miou": 0.7233408144034822,
+        "cls_miou": 0.4111185492003678,
+        "share_of_epoch": 0.016576909614338425,
+        "tags": "unfound t2,t5,t6,t8"
+      },
+      {
+        "step": 545,
+        "ref": "15482",
+        "query": "17151",
+        "loss": 6.117406368255615,
+        "bce": 5.28097677230835,
+        "dice": 0.8364297747612,
+        "fwd_miou": 0.6530959686498452,
+        "cls_miou": 0.06797581285790269,
+        "share_of_epoch": 0.01632383987511743,
+        "tags": "unfound t1,t3,t4,t7,t10"
+      },
+      {
+        "step": 22,
+        "ref": "15674",
+        "query": "18456",
+        "loss": 5.068315505981445,
+        "bce": 4.211946487426758,
+        "dice": 0.8563691973686218,
+        "fwd_miou": 0.6721670314867823,
+        "cls_miou": 0.05797010203643974,
+        "share_of_epoch": 0.013524419627497737,
+        "tags": "unfound t4,t8,t9,t10; takeover t5"
+      }
+    ]
+  },
+  "carrier": {
+    "n_pairs": 1107,
+    "loss": {
+      "mean": 0.2663607900733399,
+      "median": 0.04291584715247154,
+      "p75": 0.06599831953644753,
+      "p90": 0.765807461738586,
+      "p95": 1.8510861992836016,
+      "max": 6.6023945808410645,
+      "top5_share": 0.08122683983990837,
+      "top10_share": 0.14007019612577287,
+      "top20_share": 0.2461433024171591,
+      "n_over_3x_median": 179,
+      "n_over_10x_median": 134
+    },
+    "bce_share": {
+      "unfound_channels": 0.7296162204827398,
+      "found_channels": 0.27038520283726897,
+      "total_bce": 177.64770272068563,
+      "total_dice": 117.21369213983417
+    },
+    "pairs_with_an_unfound_channel": 104,
+    "found_rate": 0.9774504954044249,
+    "per_trait": {
+      "1": {
+        "n": 1097,
+        "unfound": 26,
+        "found_rate": 0.9762989972652689,
+        "fwd_iou_when_found": 0.845414939309057,
+        "cls_iou_when_found": 0.8687232492997198,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.012856152053413956,
+        "bce_share_when_unfound": 0.696555608974359,
+        "dice_when_found": 0.10374080298786181,
+        "dice_when_unfound": 0.9996000000000002
+      },
+      "2": {
+        "n": 1101,
+        "unfound": 32,
+        "found_rate": 0.9709355131698456,
+        "fwd_iou_when_found": 0.8615257249766136,
+        "cls_iou_when_found": 0.9081392890551918,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.006525954051405407,
+        "bce_share_when_unfound": 0.848361246279762,
+        "dice_when_found": 0.06293049579045837,
+        "dice_when_unfound": 0.9997843750000001
+      },
+      "3": {
+        "n": 1101,
+        "unfound": 3,
+        "found_rate": 0.997275204359673,
+        "fwd_iou_when_found": 0.8468332422586521,
+        "cls_iou_when_found": 0.9253827868852459,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.004958235536473241,
+        "bce_share_when_unfound": 0.7872300000000001,
+        "dice_when_found": 0.05183943533697632,
+        "dice_when_unfound": 0.9989
+      },
+      "4": {
+        "n": 1103,
+        "unfound": 17,
+        "found_rate": 0.9845874886672711,
+        "fwd_iou_when_found": 0.864696961325967,
+        "cls_iou_when_found": 0.9260460405156538,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0020089749042649595,
+        "bce_share_when_unfound": 0.7013745098039217,
+        "dice_when_found": 0.05082449355432781,
+        "dice_when_unfound": 0.999735294117647
+      },
+      "5": {
+        "n": 1098,
+        "unfound": 30,
+        "found_rate": 0.9726775956284153,
+        "fwd_iou_when_found": 0.8186353932584269,
+        "cls_iou_when_found": 0.8573558988764044,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.011711539830027588,
+        "bce_share_when_unfound": 0.9336052777777778,
+        "dice_when_found": 0.10950018513399117,
+        "dice_when_unfound": 0.9997633333333334
+      },
+      "6": {
+        "n": 1092,
+        "unfound": 34,
+        "found_rate": 0.9688644688644689,
+        "fwd_iou_when_found": 0.8154333648393195,
+        "cls_iou_when_found": 0.8693706049149338,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0014943337234074475,
+        "bce_share_when_unfound": 0.6799007271241829,
+        "dice_when_found": 0.08762769376181476,
+        "dice_when_unfound": 0.9990676470588236
+      },
+      "7": {
+        "n": 894,
+        "unfound": 7,
+        "found_rate": 0.9921700223713646,
+        "fwd_iou_when_found": 0.8858269447576098,
+        "cls_iou_when_found": 0.8896414881623449,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0014449123136665413,
+        "bce_share_when_unfound": 0.9781135714285715,
+        "dice_when_found": 0.07070248027057496,
+        "dice_when_unfound": 0.9997142857142858
+      },
+      "8": {
+        "n": 891,
+        "unfound": 10,
+        "found_rate": 0.9887766554433222,
+        "fwd_iou_when_found": 0.8912968217934165,
+        "cls_iou_when_found": 0.9021171396140748,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.002589753121452895,
+        "bce_share_when_unfound": 0.9368865000000002,
+        "dice_when_found": 0.06101203178206584,
+        "dice_when_unfound": 0.99983
+      },
+      "9": {
+        "n": 436,
+        "unfound": 4,
+        "found_rate": 0.9908256880733946,
+        "fwd_iou_when_found": 0.8614342592592593,
+        "cls_iou_when_found": 0.8717780092592593,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0030863323045267487,
+        "bce_share_when_unfound": 0.2700675,
+        "dice_when_found": 0.08494513888888887,
+        "dice_when_unfound": 0.999425
+      },
+      "10": {
+        "n": 437,
+        "unfound": 4,
+        "found_rate": 0.9908466819221968,
+        "fwd_iou_when_found": 0.8599799076212472,
+        "cls_iou_when_found": 0.8663235565819862,
+        "cls_iou_when_unfound": 0.0,
+        "bce_share_when_found": 0.0015630534477070275,
+        "bce_share_when_unfound": 0.41271749999999996,
+        "dice_when_found": 0.08539838337182448,
+        "dice_when_unfound": 0.9992000000000001
+      }
+    },
+    "takeovers": {
+      "n": 28,
+      "rule": "fwd IoU >= 0.5 and closing IoU < 0.2",
+      "by_trait": {
+        "1": 5,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 3,
+        "6": 6,
+        "7": 1,
+        "8": 4,
+        "9": 6,
+        "10": 0
+      }
+    },
+    "corr": {
+      "loss_vs_n_unfound": 0.8540570367283387,
+      "loss_vs_fwd_miou": -0.7104239105681708
+    },
+    "top": [
+      {
+        "step": 22,
+        "ref": "15674",
+        "query": "18456",
+        "loss": 6.6023945808410645,
+        "bce": 5.8241777420043945,
+        "dice": 0.7782168388366699,
+        "fwd_miou": 0.15174045285569449,
+        "cls_miou": 0.16339988522254262,
+        "share_of_epoch": 0.022391519207006303,
+        "tags": "unfound t4,t8,t9,t10"
+      },
+      {
+        "step": 1065,
+        "ref": "15602",
+        "query": "18496",
+        "loss": 5.060164928436279,
+        "bce": 4.333738327026367,
+        "dice": 0.7264265418052673,
+        "fwd_miou": 0.7956271554139738,
+        "cls_miou": 0.21522024991284,
+        "share_of_epoch": 0.01716116460450429,
+        "tags": "unfound t1,t4"
+      },
+      {
+        "step": 444,
+        "ref": "39510",
+        "query": "14398",
+        "loss": 4.477606773376465,
+        "bce": 3.941676616668701,
+        "dice": 0.5359303951263428,
+        "fwd_miou": 0.7481724279495966,
+        "cls_miou": 0.417382155148502,
+        "share_of_epoch": 0.015185462916502739,
+        "tags": "unfound t2,t6,t8"
+      }
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "dataset": "beetle",
+  "adapter": "sst_sam2",
+  "protocol": {
+    "shots": 1,
+    "n_runs": 2,
+    "groups": [
+      "all"
+    ],
+    "support_set_hash": "0652a4069f57"
+  },
+  "results": {
+    "miou": 0.4971673323460451,
+    "std": 0.0832420212267223,
+    "sem": 0.05886099768908986,
+    "miou_model_space": 0.49559135700152424,
+    "per_group": {
+      "all": {
+        "miou": 0.4971673323460451,
+        "std": 0.0832420212267223,
+        "n_runs": 2
+      }
+    },
+    "per_run": [
+      0.556028330035135,
+      0.43830633465695523
+    ]
+  },
+  "runs": [
+    {
+      "group": "all",
+      "shot": 1,
+      "run_idx": 0,
+      "seed": 698264896,
+      "support_ids": [
+        "pensylvanicus/beetle_869_1031"
+      ],
+      "miou": 0.556028330035135,
+      "miou_model_space": 0.554262688165294,
+      "iou_binary": 0.8473766973337634,
+      "per_trait_mean": {
+        "1": 0.48987315423704647,
+        "2": 0.5588664244381397,
+        "3": 0.7734552073799565,
+        "4": 0.36117050415135876,
+        "5": 0.5848556778404966
+      },
+      "n_images": 60,
+      "n_skipped": 0,
+      "elapsed_s": 15.0,
+      "sec_per_image": 0.25
+    },
+    {
+      "group": "all",
+      "shot": 1,
+      "run_idx": 1,
+      "seed": 1891432314,
+      "support_ids": [
+        "dubius/beetle_197_1246"
+      ],
+      "miou": 0.43830633465695523,
+      "miou_model_space": 0.4369200258377544,
+      "iou_binary": 0.8637425311291804,
+      "per_trait_mean": {
+        "1": 0.4118922379979526,
+        "2": 0.33160728934501504,
+        "3": 0.717357463085879,
+        "4": 0.3339947831069067,
+        "5": 0.3781931144124513
+      },
+      "n_images": 60,
+      "n_skipped": 0,
+      "elapsed_s": 14.8,
+      "sec_per_image": 0.246
+    }
+  ],
+  "embedding_cache": {
+    "all": {
+      "n_cached": 62,
+      "bytes_per_image": 10485760,
+      "total_gb": 0.65,
+      "hits": 8,
+      "misses": 16,
+      "encoded": 64
+    }
+  },
+  "model": {
+    "image_size": 1024,
+    "num_maskmem": 7,
+    "checkpoint": "/content/SST/checkpoints/sam2_hiera_large.pt",
+    "dtype": "torch.bfloat16",
+    "load_missing_keys": 0,
+    "load_unexpected_keys": 0
+  },
+  "cache_check": {
+    "identical": true,
+    "max_abs_diff": 0.0
+  },
+  "sdpa": {
+    "available": true,
+    "gpu": "NVIDIA A100-SXM4-40GB",
+    "capability": [
+      8,
+      0
+    ],
+    "dtype": "torch.bfloat16",
+    "sam2_use_flash_attn": true,
+    "forward": {
+      "memory_attention_self_attn": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      },
+      "mask_decoder_self_attn": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      },
+      "mask_decoder_cross_attn_tok": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      }
+    },
+    "backward": {
+      "memory_attention_self_attn": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      },
+      "mask_decoder_self_attn": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      },
+      "mask_decoder_cross_attn_tok": {
+        "flash": "ok",
+        "mem_efficient": "ok",
+        "math": "ok"
+      }
+    },
+    "allow_all_kernels_after_run": false
+  },
+  "overlay_reviewed": false,
+  "stage": "s3"
+}
