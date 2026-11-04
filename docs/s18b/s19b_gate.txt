@@ -1,0 +1,11 @@
+
+GATE S19B — S19b: multi-reference training x per-support orientation at 5-shot   [SCC]
+
+  bundle: s19b.zip | NVIDIA A40 | None | occl unknown | sst 013870d6
+
+  [PASS]  [butterfly_major] both parents bound, MREF fits with seeded in-group references, frozen plan, every new cell paired to its locked cell, probes complete, every read computable
+          parents e0bf48fa94b3/eebd9a262c46; eligible=['crown_all_mref', 'odd_cf_all_mref']; 5-shot cells, 1-shot MREF cells and probes complete
+  [PASS]  [beetle] both parents bound, MREF fits with seeded in-group references, frozen plan, every new cell paired to its locked cell, probes complete, every read computable
+          parents 714d7d17ac14/f2364d7c54f0; eligible=['crown_all_mref', 'odd_cf_all_mref']; 5-shot cells, 1-shot MREF cells and probes complete
+
+  GATE S19B: PASS

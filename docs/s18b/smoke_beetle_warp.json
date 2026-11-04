@@ -1,0 +1,39 @@
+{
+  "dataset": "beetle",
+  "model": "sam2_hiera_large",
+  "pair": [
+    "pensylvanicus/beetle_869_1031",
+    "restrictus/beetle_182_291"
+  ],
+  "channels": 2,
+  "class_ids": [
+    1,
+    2
+  ],
+  "transform": "warp",
+  "arm": "odd_cf_judge",
+  "loss": 0.20813070237636566,
+  "terms": {
+    "anchor": 0.12231990694999695,
+    "obj": 0.006125322543084621,
+    "odd": 0.061650533229112625,
+    "centre": 0.03657960891723633,
+    "judge": 5.158071871846914e-07
+  },
+  "grad_norm": 2.9966182708740234,
+  "weights": [
+    0.47497981786727905,
+    0.2584530711174011
+  ],
+  "recoverable": [
+    true,
+    true
+  ],
+  "elapsed_s": 85.40011930465698,
+  "peak_rss_kb": 17824572,
+  "source_hash": "13b358516904974dd7cc4248b0e9bbcc982ee4ebc925d4bbaace59652b128a78",
+  "checkpoint_sha256": "7442e4e9b732a508f80e141e7c2913437a3610ee0c77381a66658c3a445df87b",
+  "dtype": "fp32",
+  "torch": "2.12.1+cu130",
+  "limitation": "two channels; CPU wiring/backward only; no optimizer fit or GPU outcome"
+}

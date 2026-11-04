@@ -1,0 +1,11 @@
+
+GATE S19 — S19: the S18b wings at five-shot inference   [SCC]
+
+  bundle: s19.zip | NVIDIA L40S | None | occl unknown | sst 013870d6
+
+  [PASS]  [butterfly_major] parent binding (adapters + 1-shot cells), 5-shot coverage, same adapter bytes, prefix-nested pairing, every read computable
+          parent e0bf48fa94b3; wings ['crown_all', 'odd_cf_all']; 5-shot test complete (paired, prefix-nested on the 1-shot cells)
+  [PASS]  [beetle] parent binding (adapters + 1-shot cells), 5-shot coverage, same adapter bytes, prefix-nested pairing, every read computable
+          parent 714d7d17ac14; wings ['crown_all', 'odd_cf_all']; 5-shot test complete (paired, prefix-nested on the 1-shot cells)
+
+  GATE S19: PASS

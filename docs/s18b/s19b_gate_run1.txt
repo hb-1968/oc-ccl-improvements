@@ -1,0 +1,11 @@
+
+GATE S19B — S19b: multi-reference training x per-support orientation at 5-shot   [SCC]
+
+  bundle: s19b.zip | NVIDIA L40S | None | occl unknown | sst 013870d6
+
+  [FAIL]  [butterfly_major] both parents bound, MREF fits with seeded in-group references, frozen plan, every new cell paired to its locked cell, probes complete, every read computable
+          test cell coverage
+  [FAIL]  [beetle] both parents bound, MREF fits with seeded in-group references, frozen plan, every new cell paired to its locked cell, probes complete, every read computable
+          test cell coverage
+
+  GATE S19B: FAIL  — do not proceed to the next stage

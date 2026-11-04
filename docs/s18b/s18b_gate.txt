@@ -1,0 +1,23 @@
+
+GATE S18B_SCREEN — S18b counterfactual palindrome evidence   [SCC]
+
+  bundle: s18b.zip | NVIDIA L40S | None | occl unknown | sst 013870d6
+
+  [PASS]  [butterfly_major] manifest, coverage, frozen selection and paired evidence
+          886 fit / 221 held-out; winner=odd_cf_all; screen complete (not a test win)
+  [PASS]  [beetle] manifest, coverage, frozen selection and paired evidence
+          96 fit / 24 held-out; winner=odd_cf_all; screen complete (not a test win)
+
+  GATE S18B_SCREEN: PASS
+
+
+GATE S18B — S18b counterfactual palindrome evidence   [SCC]
+
+  bundle: s18b.zip | NVIDIA L40S | None | occl unknown | sst 013870d6
+
+  [PASS]  [butterfly_major] manifest, coverage, frozen selection and paired evidence
+          886 fit / 221 held-out; winner=odd_cf_all; test complete
+  [PASS]  [beetle] manifest, coverage, frozen selection and paired evidence
+          96 fit / 24 held-out; winner=odd_cf_all; test complete
+
+  GATE S18B: PASS

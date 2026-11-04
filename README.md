@@ -1,52 +1,69 @@
 # OC-CCL experiments
 
-I started this project to reproduce [Static Segmentation by Tracking](https://arxiv.org/abs/2501.06749)
-(SST) and understand when its open–close cycle loss improves segmentation.
-SST treats a labeled support image and a query image as two video frames:
-the tracker carries trait masks from the support to the query.
+I started this project to reproduce [Static Segmentation by Tracking](https://arxiv.org/abs/2501.06749) (SST) and
+understand when its open–close cycle loss improves segmentation. SST treats a
+labeled support image and a query image as frames of a video: the tracker carries
+trait masks from the support to the query.
 
-The work builds an evaluation harness, then compares support selection,
-orientation handling, fine-tuning and tracker architecture. The central question
-is whether a better cycle reconstruction also improves the query prediction.
-This published version contains S1–S17d and the S18 implementation; S18 results
-are not included.
+The work grew into an evaluation harness and a sequence of controlled changes to
+support selection, orientation handling, fine-tuning and tracker architecture.
+The main contribution is the comparison: which changes help, on which dataset,
+and whether a better cycle reconstruction also improves the query prediction.
 
-## Findings and limits
+The implementation published here covers S1–S17d and the S18 build. The later
+findings below are documented from local experiments; their implementation and
+full run bundles are not included in this publication.
 
-Beetle results approached the paper's reported baseline under curated,
-species-balanced support selection. Butterfly Major remained below it.
-Orientation handling helped, but a stronger tracker did not remove the butterfly
-gap. Fine-tuning gains depended on the dataset and configuration.
+## What the experiments show
 
-Selected recorded results, in mIoU (%) over 20 support seeds:
+The later experiments separate better cycle behaviour from better segmentation.
+Counterfactual centre training reduced mask persistence on edited references,
+but slightly lowered butterfly test mIoU against its all-leg control. Training
+with multiple references helped beetle; matching butterfly support-label
+conventions gave smaller gains. Shape losses improved some structures while
+hurting others.
 
-| Configuration | Butterfly Major | Beetle |
-| :-- | --: | --: |
-| SAM 2, 1-shot, uniform supports (S4a/S5a) | 68.54 ± 3.15 | 55.96 ± 7.90 |
-| SAM 2, 1-shot, canonical and species-balanced supports (S4c) | — | 63.20 ± 3.89 |
-| SAM 2, 5-shot (S6) | 71.78 ± 0.15 | 73.16 ± 2.31 |
-| SAM 3, 5-shot, orientation TTA (S15) | 77.95 ± 0.18 | 77.94 ± 2.19 |
-| SAM 3, 5-shot, architecture stack and TTA (S15) | 77.47 ± 0.26 | 78.91 ± 1.99 |
+[What changed after S18](docs/LATER_EXPERIMENTS.md) follows these comparisons,
+including the negative results and the local tiling probe. The probe gained
+1.55 points on 40 selected butterfly queries; it has not yet been confirmed
+in S24's full tuned evaluation.
 
-The spreads describe support-seed variation, not repeated training. These rows
-use different configurations and should not be read as isolated treatment effects.
-The [experiment ledger](EXPERIMENTS.md) retains the paired comparisons, failed
-gates and negative results.
+Selected recorded comparisons, in **argmax mIoU (%)**:
 
-Exact reproduction remains limited by unpublished support choices and the
-paper's unavailable beetle split. This repository uses its own beetle split and
-explicit support-curation rules. Curation also uses more labeled masks than the
-one- or five-shot prediction itself; the shot count does not describe the full
-label budget. Overlap resolution is inferred rather than specified by the paper.
+| Comparison | Control → treatment | Difference, percentage points | Evidence |
+| :-- | :-- | :-- | :-- |
+| Beetle, SAM 3, 1-shot: base → `crown_all_mref` | 66.32 → 70.19 | +3.87 [2.97, 4.78] | [S20](docs/s18b/S20_RESULTS.md) |
+| Beetle, SAM 3, 5-shot: base → `crown_all_mref` | 77.96 → 78.95 | +0.99 [0.58, 1.38] | [S20](docs/s18b/S20_RESULTS.md) |
+| Butterfly Major, SAM 2, 5-shot: curated → label-consistent support pool, `crown_all_mref` | 78.56 → 78.75 | +0.19 [0.08, 0.29] | [S21](docs/s18b/S21_RESULTS.md) |
 
-## Read or run
+All rows use orientation test-time augmentation (TTA) and 20 support seeds.
+Intervals use 10,000 bootstrap resamples over support seeds, seed 0, and are
+unadjusted for multiple comparisons. They are conditional on fitted adapters,
+not variation across repeated training. In the pool comparison, two subspecies'
+support draws change; pairing by seed does not make those draws identical.
+`crown_all_mref` denotes all-leg adaptation with multiple training references.
+The butterfly filtering thresholds were informed by test-annotation inspection;
+that comparison is diagnostic rather than an untouched-test generalization claim.
 
-- [Runbook](RUNBOOK.md): setup, cluster execution, returned bundles and resume rules.
-- [Experiment ledger](EXPERIMENTS.md): methods, stage history, results and limitations.
-- [Documentation index](docs/README.md): figures and presentation material.
+These are selected within-project comparisons, not a single leaderboard or proof
+of exact reproduction. The beetle split and support curation approximate unpublished
+choices; butterfly annotation conventions also affect the remaining gap. Best-of-3
+boundary scores are secondary diagnostics. Failed gates and negative results remain
+in the evidence record.
 
-The package is in `src/occl/`; workers and gate checks are in `scripts/`.
-Notebook `.py` files are the editable sources for their `.ipynb` counterparts.
-Model checkouts, weights and the image cache are external inputs. Follow the
-runbook before running tests or GPU stages. A stage is complete only when its
-bundle passes the corresponding gate.
+S18–S23 have recorded results in this checkout. S18a's merged gate still fails on
+the butterfly hot memory-STE collapse. S24 is implemented and preregistered, with a
+local zoom probe, but its full evaluation is still marked unrun. A result does not
+automatically change the established `sam2_crown` training recipe.
+
+## Read or reproduce
+
+- [Later experiments](docs/LATER_EXPERIMENTS.md): findings, limitations and stage records.
+- [Evidence index](docs/README.md): methods, plans and result reports.
+- [Runbook](RUNBOOK.md): setup and execution for the published implementation.
+- [Experiment ledger](EXPERIMENTS.md): the published reproduction and development history.
+
+Later plans describe the local research implementation at the time of each run.
+Their code paths and bundle references are provenance records, not a claim that
+those files are included here. S24 remains unrun. The established `sam2_crown`
+recipe is unchanged.

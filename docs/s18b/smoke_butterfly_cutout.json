@@ -1,0 +1,39 @@
+{
+  "dataset": "butterfly_major",
+  "model": "sam2_hiera_large",
+  "pair": [
+    "15430",
+    "16122"
+  ],
+  "channels": 2,
+  "class_ids": [
+    1,
+    2
+  ],
+  "transform": "cutout",
+  "arm": "odd_cf_judge",
+  "loss": 0.3339385390281677,
+  "terms": {
+    "anchor": 0.02245384268462658,
+    "obj": 0.00027647416573017836,
+    "odd": 0.021655071526765823,
+    "centre": 1.2132247686386108,
+    "judge": 2.687827183045499e-10
+  },
+  "grad_norm": 2.37469744682312,
+  "weights": [
+    0.8513455986976624,
+    0.0
+  ],
+  "recoverable": [
+    false,
+    true
+  ],
+  "elapsed_s": 85.6982946395874,
+  "peak_rss_kb": 17867392,
+  "source_hash": "13b358516904974dd7cc4248b0e9bbcc982ee4ebc925d4bbaace59652b128a78",
+  "checkpoint_sha256": "7442e4e9b732a508f80e141e7c2913437a3610ee0c77381a66658c3a445df87b",
+  "dtype": "fp32",
+  "torch": "2.12.1+cu130",
+  "limitation": "two channels; CPU wiring/backward only; no optimizer fit or GPU outcome"
+}
