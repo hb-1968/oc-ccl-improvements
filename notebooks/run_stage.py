@@ -250,8 +250,8 @@ def worker_env(**extra):
 # silhouette quality. Build the slice locally and upload the zip beside occl-repo.zip:
 #
 #   python scripts/build_cache.py --cache-root ~/oc-ccl-data/cache-area \
-#       --originals-root ~/oc-ccl-data/originals --datasets butterfly_major \
-#       --groups cyrbia malleti --n-runs 2 --interp area --local
+# originals-root ~/oc-ccl-data/originals --datasets butterfly_major \
+# groups cyrbia malleti --n-runs 2 --interp area --local
 #   (cd ~/oc-ccl-data && zip -qr ~/occl-cache-area.zip cache-area)
 DIAG_RESAMPLE = "linear"
 CACHE_AREA_ZIP = "occl-cache-area.zip"
@@ -874,10 +874,7 @@ from google.colab import drive
 
 drive.mount("/content/drive")
 
-# Resolve the cache wherever it actually landed. The cache root is whichever directory
-# *directly* contains `manifest.jsonl` alongside the dataset folders — so uploading
-# `oc-ccl-data/` wholesale puts it at `.../oc-ccl-data/cache`, not at `occl/cache`.
-# Probing a handful of candidates beats walking Drive, which can be very slow.
+# Find the directory containing manifest.jsonl; avoid recursively walking Drive.
 _MD = "/content/drive/MyDrive"
 _CANDIDATES = [
     CACHE_ROOT,
@@ -910,16 +907,10 @@ if CACHE_ROOT:
                                 if not d.endswith(".jsonl")))
 
 # %%
-# ── get this repo onto the runtime ───────────────────────────────────────────
-# Installed from /content rather than in place on Drive: an editable install through
-# Drive's FUSE layer is slow and occasionally serves stale bytes.
+# Install on local disk to avoid Drive latency and stale reads.
 REPO = "/content/occl-repo"
 
-# Copy an explicit allowlist, never `cp -r` the whole folder. A local `.venv` is ~2,800
-# files, and Drive's FUSE layer manages only a handful of small files per second, so a
-# blind recursive copy stalls for 10-30 minutes while appearing to do nothing — and then
-# yields a venv that is useless anyway (wrong Python, absolute local paths). An allowlist
-# means FUSE never descends into it. The real payload is ~37 files / 292 KB.
+# Copy only the archive allowlist; local environments are large and non-portable.
 REPO_CONTENTS = ("src", "scripts", "notebooks", "tests", "pyproject.toml", "README.md")
 
 if REPO_SOURCE == "drive_zip":
@@ -931,11 +922,7 @@ if REPO_SOURCE == "drive_zip":
                   + "\n  ".join(_zips))
     print(f"extracting {_zip} ({os.path.getsize(_zip) / 1024:.0f} KB)")
     !rm -rf {REPO} && mkdir -p {REPO} && unzip -q -o "{_zip}" -d {REPO}
-    # The zip and this notebook travel separately, and nothing else pairs them: the
-    # first S10 session ran a current notebook against a stale zip, and the failure
-    # surfaced 400 lines later as `unrecognized arguments` in six worker logs. Cheapest
-    # honest check: the extracted copy of this very file must know the stage this
-    # session is about to run — a zip predating a new stage fails HERE, naming the fix.
+    # Check notebook/archive compatibility before launching workers.
     _extracted_stages = open(f"{REPO}/notebooks/run_stage.py").read() \
         .split("STAGES = (", 1)[1].split(")", 1)[0]
     assert f'"{STAGE}"' in _extracted_stages, (
@@ -1034,16 +1021,7 @@ print("SST at", paths.sst_root())
 print("butterfly masks:", paths.butterfly_root().exists(), "| beetle:", paths.beetle_root().exists())
 
 # %%
-# ── stage the image cache onto local disk ────────────────────────────────────
-# Every read during evaluation then hits local NVMe instead of Drive's FUSE layer. S5
-# alone reads 598 images across 10,000 episodes, and FUSE small-file latency would
-# dominate. Colab gives ~236 GB of local disk, so this is free. Skipped for s2, which
-# writes the cache rather than reading it.
-#
-# The cache is LOSSLESS PNG (~2.5 GB). It was JPEG q95 until measurement showed that
-# inserted an encode SST does not have — its read_image goes decode -> cv2.resize ->
-# model with no intermediate file. Lossless makes our cache a pure memoisation of that
-# path, verified bit-exact (0 deviation) for both the PIL and rawpy decode routes.
+# Stage the lossless PNG cache on local disk before evaluation to avoid Drive latency.
 LOCAL_CACHE = CACHE_ROOT
 if STAGE != "s2":
     import json as _json
@@ -1103,10 +1081,8 @@ if STAGE != "s2":
             assert _found, "no manifest.jsonl inside " + CACHE_ZIP
             os.rename(_found[0], LOCAL_CACHE)
         else:
-            # The folder fallback is the DANGEROUS path: Drive's FUSE layer silently
-            # drops files during large recursive copies (why this repo ships as a zip),
-            # and an old cache folder may hold the superseded JPEG images, so a
-            # "successful" copy can quietly feed the model the wrong pixels.
+            # Verify folder copies against the manifest; incomplete copies or old JPEG
+            # caches are not valid inputs.
             print(f"WARNING: {CACHE_ZIP} not found on Drive. Copying {CACHE_ROOT} "
                   "file-by-file — check the reported formats below before trusting any "
                   "number from this run.")
@@ -1114,24 +1090,8 @@ if STAGE != "s2":
         print(f"staged cache locally in {_t.time() - _t0:.0f}s")
         _have = _cache_shortfall(LOCAL_CACHE)
 
-    # Delta goes on top of whichever base landed above — zip OR folder — and runs on
-    # EVERY execution of this cell, not just a fresh stage. Both halves matter:
-    #
-    #   * folder path too, or the fallback stage is silently short of the new arm's images;
-    #   * every execution, or a session that staged the base BEFORE the delta was uploaded
-    #     can never repair itself — the base is complete by its own manifest, so the
-    #     re-stage guard above is satisfied and re-running the cell changes nothing. That
-    #     is exactly the "a partial staging is never repaired" bug, one level up.
-    #
-    # Idempotent by cache_path, so repeated runs merge only what is genuinely new. The
-    # manifest merge is the load-bearing half: `ImageCache.has` consults the manifest, so
-    # copying files without appending their entries puts the images on disk and still
-    # reports every one of them as a cache miss.
-    # Resolution accepts an absolute path OR a bare filename, probes the usual three
-    # directories, then falls back to a shallow glob. Probing a fixed list and printing
-    # only "not found" is how a 0.49 GB upload sitting one directory over, or under a
-    # browser-renamed "... (1).zip", turns into 265 cache misses per worker with no
-    # indication of why — so a miss here reports what IS on Drive.
+    # Apply deltas on every staging pass, for both archive and folder inputs. Merge
+    # manifest entries with files so ImageCache.has sees them.
     import glob as _glob
 
     _dcand = []
@@ -1285,50 +1245,12 @@ GROUPS_OF = {
 }
 
 
-#: Per-worker VRAM, {fixed, cache} in GB. `cache` is one group's embedding cache, which
-#: TTA doubles (it stores both orientations); `fixed` is weights plus activations.
-#:
-#: These were badly overstated until s5c: they came from *peak totals reported during
-#: precompute*, where the image encoder is resident, and were then used as if they were
-#: steady state. Measured, s5c ran 6 workers in 13.5 GB — **2.25 GB each against the 5.62
-#: projected**, leaving two thirds of the card idle. Every run now records its own
-#: `vram.peak_reserved_gb`, so these numbers can be replaced with measurements rather than
-#: re-estimated; see `scripts/calibrate_workers.py`.
-#:
-#: Consequence of the correction: **vCPU is the binding constraint, not VRAM.** At ~2.3 GB
-#: a worker, 40 GB would allow ~15, but Colab's A100 runtime has ~12 cores and each worker
-#: needs about one to feed the GPU.
-#: Defaults only — `vram_calibration.json` on Drive overrides these once a run has
-#: measured itself. Every figure in this table has been wrong at least once, always
-#: because it was taken from an unrepresentative moment:
-#:   * 4.6 GB read off an OOM traceback, where surviving processes were already starved
-#:     (true value 5.64) -> ceiling set too high -> another OOM;
-#:   * 2.25 GB read from a run that resumed everything from cache and did ZERO inference
-#:     (0.96 GB peak reserved) -> ceiling set far too low, then far too high once TTA
-#:     actually ran -> another OOM.
-#: Measured under real inference: butterfly 1-shot + TTA = 4.12-4.45 GB per worker.
-#:
-#: The `cache` column is now DERIVED (see `cache_gb`) and kept here only as the value the
-#: old flat model used, because that model is what over-committed butterfly at 5-shot: it
-#: treats the embedding cache as a constant when it is a function of how many distinct
-#: images the worker's own run-slice touches.
-#: `fixed` MUST NOT INCREASE AS SHOT COUNT FALLS. A 1-shot episode does strictly less work
-#: than a 5-shot one — fewer prompt calls, fewer frames in the bank, the same object count —
-#: so its peak activations cannot be larger. The table violated that in both datasets
-#: (butterfly 3.45 at 1-shot against a measured 2.95 at 5-shot; beetle 2.36 against 2.06),
-#: which cost workers on exactly the stages that are cheapest to run. Corrected by taking
-#: the SMALLER FIGURE ALREADY IN THE TABLE rather than inventing a new one — this removes an
-#: ordering violation, it does not add a measurement. `tests/test_fanout` now enforces it.
+# Per-worker VRAM estimates in GB: fixed residency plus image-cache cost. Use measured
+# vram_calibration.json values when available.
 PEAK_GB = {
     ("butterfly_major", 1): {"fixed": 2.95, "cache": 0.50},   # was 3.45; see above
-    # 4.07 -> 2.95, from TWO independent measurements that agree, which is the bar this
-    # table has never previously cleared:
-    #   * `profile.zip`: peak_reserved minus that run's own 1.10 GB cache = 2.95 GB.
-    #   * the s8d butterfly plain pass: 6 workers observed at ~27 GiB (29.0 GB) holding
-    #     11.54 GB of embeddings between them -> (29.0 - 11.54)/6 = 2.91 GB each.
-    # One is a 12-episode single process, the other six processes under full load for 100
-    # minutes; they land 1.4% apart. The old 4.07 was a peak captured DURING precompute and
-    # then used as steady state, which is the same mistake that produced 4.6 and 2.25.
+    # Fixed residency estimate: 2.95 GB from profile.zip after subtracting its 1.10 GB
+    # cache; the six-worker S8d run gave 2.91 GB.
     ("butterfly_major", 5): {"fixed": 2.95, "cache": 0.79},
     ("beetle", 1):          {"fixed": 2.06, "cache": 0.32},   # was 2.36; see above
     ("beetle", 5):          {"fixed": 2.06, "cache": 0.47},
@@ -1339,10 +1261,7 @@ PEAK_GB = {
     ("beetle", 2):          {"fixed": 2.06, "cache": 0.36},
 }
 
-#: Bytes one image's cached `backbone_fpn` occupies, measured from the bundles rather than
-#: estimated: S5 recorded 119 images at 1.248 GB (butterfly) and S4 79 at 0.828 GB (beetle)
-#: — **10.49 MB either way**, because every image is encoded at 1024x1024 regardless of its
-#: source resolution, so the three feature levels have a fixed shape.
+# Measured embedding-cache cost: 10.49 MB per 1024x1024 image in S4/S5.
 EMBED_MB_PER_IMAGE = 10.49
 
 #: Test images per group. Asserted by gate S1; here they set the cache floor, which is the
@@ -1428,22 +1347,9 @@ def save_calibration(dataset, shot, tta, fixed_gb):
         pass
 
 
-#: What TTA multiplies the WHOLE per-worker figure by, not just the embedding cache.
-#:
-#: The old model added one extra cache term (`fixed + 2*cache`), reasoning that TTA only
-#: stores a second orientation. Measured on beetle 5-shot that predicts 3.00 GB and the
-#: real figure is 3.67 — TTA also runs a second prediction per episode, so the transient
-#: activations rise too. 11 workers were planned at 2.68 GB, 9 fit at 3.67, and workers 9
-#: and 10 died: exactly the two the arithmetic did not leave room for.
-#:
-#: 1.5 because the ratio has to be taken against whatever base the planner will actually
-#: use. Against the calibrated plain figure it is 3.67/2.68 = 1.37; against this table's
-#: 2.53 it is 1.45. At 1.4 the planner allows 10 workers, and 10 x 3.67 = 36.7 GB exceeds
-#: the 36.3 GB headroom — fitting only because the hard limit is 39.5. 1.5 yields 9 either
-#: way, which is exactly the number that survived.
-#:
-#: Used only until a real TTA run calibrates the pair — measured always wins — and the
-#: first TTA run on a new (dataset, shot) is precisely when nothing is measured yet.
+# Apply the fallback TTA factor to total worker residency, not just cache memory. The
+# 1.5 factor admitted the observed nine workers; measured TTA calibration takes
+# precedence.
 TTA_VRAM_FACTOR = 1.5
 
 
@@ -1462,10 +1368,8 @@ def per_worker_gb(dataset, shot, tta=False, runs_in_slice=None, n_runs=20):
     fixed = p["fixed"]
     if tta:
         fixed *= TTA_VRAM_FACTOR
-    # `vram_calibration.json` now holds the FIXED cost alone — peak minus that worker's own
-    # embedding cache — so it is directly comparable to this table and is not re-scaled for
-    # TTA (the recorded value already is a TTA measurement when tta is set). `max`, because
-    # under-sizing costs an OOM and over-sizing costs one worker.
+    # Calibration stores fixed residency after subtracting that worker's cache. Do not
+    # multiply an already measured TTA value again.
     measured = load_calibration().get(_cal_key(dataset, shot, tta))
     if measured:
         fixed = max(fixed, float(measured))
@@ -1631,10 +1535,8 @@ def plan_group_workers(dataset, shot, tta=False, n_runs=20, headroom=None, reque
     n = max(fits) if fits else 1
     forced = ""
     if requested:
-        # An explicit override still respects the vCPU ceiling and the run count — those are
-        # hard, unlike the VRAM table, which is an estimate that has been wrong in both
-        # directions. Overriding UPWARD is the caller taking responsibility for a measurement
-        # the table does not have; an OOM is recoverable because every finished run is banked.
+        # Explicit worker counts still obey CPU and run-count limits; VRAM overrides
+        # require runtime evidence.
         n = max(1, min(int(requested), by_cpu, n_runs))
         forced = f" [forced from {requested}]" if n != int(requested) else " [forced]"
     per, total = price(n)
@@ -1825,10 +1727,7 @@ import subprocess
 
 
 def run(cmd: list[str]) -> None:
-    # Tee the child through the kernel's stdout: a subprocess writing to its
-    # inherited fds is invisible in the cell output, so a failing step surfaced as
-    # a bare CalledProcessError with its traceback lost to the runtime log (the
-    # first s14sec commissioning attempt died blind exactly this way).
+    # Stream child output into the cell so failures retain their traceback.
     for _i, _c in enumerate(cmd):
         assert isinstance(_c, str), (
             f"cmd[{_i}] is {_c!r} (after {cmd[max(0, _i - 1)]!r}) — a config "
@@ -2121,7 +2020,7 @@ elif STAGE == "s8c":
     os.makedirs(_lora_dir, exist_ok=True)
     _arms = []          # (label, lora_path_or_None)
 
-    # ── phase 1: train every arm CONCURRENTLY ────────────────────────────────
+    # phase 1: train every arm CONCURRENTLY
     # Training measured 2.33 GB peak, so N arms cost 2.33N GB — five would still fit in a
     # quarter of the A100. They are independent processes writing to different files, so
     # this is pure wall-clock saving: 2 arms x 10 epochs goes from ~14 min to ~7.
@@ -2198,7 +2097,7 @@ elif STAGE == "s8c":
         _arms.append((f"lora_lr{_lr:g}_ep{_ep}", _pt, _ep))
     _arms.insert(0, ("base", None, 0))
 
-    # ── phase 2: score every arm, sharing the image embeddings ───────────────
+    # phase 2: score every arm, sharing the image embeddings
     # LoRA never touches the image encoder, so all arms have IDENTICAL backbone features.
     # Encoding is ~95% of a run's compute, so one worker doing all three arms costs barely
     # more than one arm — where three separate fan-outs would pay that 95% three times.
@@ -2243,7 +2142,7 @@ elif STAGE == "s8c":
             print(open(_log.name).read()[-2500:])
     assert not _bad, f"arm workers {_bad} failed — see /content/arm*.log"
 
-    # ── phase 3: aggregate, per arm. Zero inference — every run is on disk. ──
+    # phase 3: aggregate, per arm. Zero inference — every run is on disk.
     _bundles = {}
     for _label, _pt, _ep in _arms:
         _out = os.path.join(REPO, f"s8c_{FT_DATASET}_{_label}.zip")
@@ -3166,7 +3065,7 @@ elif STAGE == "s14sec":
 
         return _C()
 
-    # ── family environment ────────────────────────────────────────────────
+    # family environment
     if not os.path.exists("/content/SeC"):
         run(["git", "clone", "-q", "--depth", "1",
              "https://github.com/OpenIXCLab/SeC", "/content/SeC"])
@@ -3191,12 +3090,12 @@ elif STAGE == "s14sec":
 
     snapshot_download(S14_SEC_HF, local_dir=_fam_ckpt)   # 15.18 GB, ungated
 
-    # ── commissioning: the gate-shaped asserts, in seconds ────────────────
+    # commissioning: the gate-shaped asserts, in seconds
     with _timed("commission"):
         run(["python", "scripts/commission_s14.py", "--family", _fam,
              "--checkpoint", _fam_ckpt, "--device", "cuda"])
 
-    # ── banked SAM 2 ledger cells (fail before training, not at the combine) ──
+    # banked SAM 2 ledger cells (fail before training, not at the combine)
     _sam2 = {}
     for _ds_name in S11_DATASETS:
         _sam2[_ds_name] = {
@@ -3217,7 +3116,7 @@ elif STAGE == "s14sec":
         print(f"\n=== {STAGE} {_ds_name}: crowned stack on {_fam}, 1-shot, {_sel} "
               f"===\n", flush=True)
 
-        # ── the stack fine-tune (per-trait + excl zerocat on the family) ──
+        # the stack fine-tune (per-trait + excl zerocat on the family)
         _pt = (f"{_ft_dir}/{_ds_name}_{_fam}_lora_lr{S14_LR:g}_ep{S14_EPOCHS}"
                f"_per_trait_excl-zerocat"
                f"_noaug_derange_logit_reparam_eval_reset.pt")
@@ -3256,7 +3155,7 @@ elif STAGE == "s14sec":
         assert os.path.exists(_pt), f"{_pt} was not written"
         shutil.copy(_pt, os.path.join(RESULTS_ROOT, os.path.basename(_pt)))
 
-        # ── eval fan-outs ─────────────────────────────────────────────────
+        # eval fan-outs
         # sam3 cells: base(plain), base_tta, stack_tta.
         # sec  cells: off(plain), forced(plain), off_tta, stack_tta — `forced`
         # is its own fan-out because the concept policy is adapter-level.
@@ -3319,7 +3218,7 @@ elif STAGE == "s14sec":
             _fan(True, ["--arms", "base=", "--arms", f"stack={_pt}"],
                  _policy="off", _log_tag="tta")
 
-        # ── merges (inference-free) ───────────────────────────────────────
+        # merges (inference-free)
         def _merge(_cell, _tta, _policy="off", _lora=None):
             _out = os.path.join(REPO, f"{STAGE}_{_ds_name}_{_cell}.zip")
             run(["python", "scripts/run_eval.py",
@@ -3343,7 +3242,7 @@ elif STAGE == "s14sec":
                       "off_tta": _merge("off_tta", True),
                       "stack_tta": _merge("stack_tta", True, _lora=_pt)}
 
-            # ── the five-pairing combine ──────────────────────────────────
+            # the five-pairing combine
             _dsb = os.path.join(REPO, f"{STAGE}_{_ds_name}.zip")
             run(["python", "scripts/combine_s14.py", "--family", _fam,
                  "--out", _dsb,
@@ -3536,9 +3435,8 @@ if STAGE == "s8b":
     )
     print(f"  lora.pt in bundle: {_lora_mb:.2f} MB")
 
-# Copy to Drive FIRST. The browser download is the fragile step — it can be blocked by
-# the browser, by a disconnected frontend, or by a session that has been idle — and it
-# must never be the only route to a bundle that took an hour of A100 to produce.
+# Save to Drive before browser download, then validate the returned bundle with
+# check_gate.py.
 os.makedirs(RESULTS_ROOT, exist_ok=True)
 _drive_copy = os.path.join(RESULTS_ROOT, os.path.basename(BUNDLE))
 shutil.copy(BUNDLE, _drive_copy)

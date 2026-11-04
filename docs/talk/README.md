@@ -1,3 +1,6 @@
+> Historical presentation material. See the [project overview](../../README.md)
+> for the published scope and the [experiment ledger](../../EXPERIMENTS.md) for context.
+
 # The 20-minute talk
 
 **`Hunter_SST_techniques.pptx` is the current deck** — 34 slides (31 presented,

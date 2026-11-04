@@ -1,43 +1,8 @@
 #!/usr/bin/env python3
-"""S17 — replay the fine-tune's own training pairs through the cycle, base vs adapter.
+"""Replay a fine-tune's training pairs with base and adapted weights.
 
-    python scripts/probe_train_pairs.py --dataset beetle --cache-root <cache> \
-        --checkpoint <sam2_hiera_large.pt> --device cuda \
-        --arms base= --arms ft=<adapter.pt> --recipe-from <adapter.pt> \
-        --train-record <s17ft_sam2_beetle.zip> --out s17probe_beetle.zip
-
-Every pair the fine-tune saw is rebuilt (`CyclePairs` is deterministic: dataset-wide,
-epoch 0, the recipe read from the adapter's OWN metadata) and pushed through
-`cycle.oc_ccl_step` under no_grad with each arm's weights. Two legs are scored per pair:
-
-  forward  x0 -> x   the model's prediction on the "unlabeled" query, prompted by x0's GT,
-                     scored against x's held-out GT (GT-native, the eval metric);
-  closing  x -> x0   the prediction on the reference, prompted by the forward leg's own
-                     output, scored against y0 — what the loss actually supervised — plus
-                     the loss value itself.
-
-The replay is PROVEN, not assumed: at global step 0 LoRA's B is still zero, so the base
-arm's loss on pair 0 must equal the first loss the training run recorded
-(`replay.loss_first_rel_err`). Every predicted label map is written into the bundle as a
-uint8 PNG so any pair can be rendered later on a machine with no GPU
-(`scripts/render_probe_sheets.py`).
-
-Arms follow `run_arms.py`: the base arm runs FIRST, before any adapter is attached, and an
-adapter that mismatches keys or has ||dW|| == 0 is refused rather than scored as base.
-
-S17d: an adapter trained under the soft sentinel (`occl.soft_sentinel = K`) is replayed
-under it, and the probe adds one base variant per distinct K (``base_soft<K>``: the base
-weights under that gate) so the replay proof and every delta compare like with like;
-``record["base_of"]`` names each adapter's base.
-
-S18: every arm's closing legs are replayed under BOTH prompt values in one call — the
-continuous `logit_reparam` prompt (the `cls_*` / `loss*` columns) and the binarised one
-(`*_hard`: the forward logits thresholded before the reverse init) — so
-``cls_miou − cls_miou_hard`` per pair is the steganography read (how much of the
-reconstruction rides on sub-threshold content the evaluator never sees). An arm trained
-with `ste_threshold` reads its own closing off the `_hard` columns (its replay proof
-too). An arm trained with `close_aug` (the closing end rotated) gets a base variant
-``base_close<D>`` (`probe.base_arm_label`), like the soft gate.
+Record forward and closing predictions/losses on the same pairs. These are
+training-pair diagnostics, separate from held-out test performance.
 """
 
 from __future__ import annotations
@@ -188,7 +153,7 @@ def main() -> int:
     ds = build_dataset(args.dataset, args.cache_root)
     out_path = Path(args.out or f"{args.stage}_{ds.name}.zip")
 
-    # ── arms ──────────────────────────────────────────────────────────────────
+    # arms
     arms: list[tuple[str, str | None]] = []
     for spec in args.arms:
         label, _, path = spec.partition("=")
@@ -237,7 +202,7 @@ def main() -> int:
     base_of = {a: base_arm_label(base_label, *arm_var[a]) for a, p in arms if p is not None}
     arm_gate = {a: v[0] for a, v in arm_var.items()}          # the soft gate, per arm
 
-    # ── the recipe ────────────────────────────────────────────────────────────
+    # the recipe
     if args.recipe_from:
         blob = torch.load(resolve_lora(args.recipe_from), map_location="cpu",
                           weights_only=False)
@@ -294,7 +259,7 @@ def main() -> int:
         train_recs[label] = rec
     training = next(iter(train_recs.values()))["training"] if train_recs else None
 
-    # ── model ─────────────────────────────────────────────────────────────────
+    # model
     adapter = SSTSam2Adapter(checkpoint=args.checkpoint)
     dtype = torch.float32 if args.device == "cpu" else None
     print(f"building {args.family} on {args.device} from {adapter.checkpoint}", flush=True)
@@ -304,7 +269,7 @@ def main() -> int:
     cuda = str(args.device).startswith("cuda")
     autocast_dtype = torch.bfloat16 if cuda else torch.float32
 
-    # ── the pairs: dataset-wide, exactly as train_lora built them ─────────────
+    # the pairs: dataset-wide, exactly as train_lora built them
     pair_kw = cyclepairs_kwargs(recipe)
     pair_kw.pop("close_aug_deg", None)             # per arm, below
     pairs = CyclePairs(ds, None, epoch=args.epoch, **pair_kw)
@@ -354,7 +319,7 @@ def main() -> int:
                 parity_idx.add(i)
                 seen[g] = seen.get(g, 0) + 1
 
-    # ── arm switching (run_arms.py semantics) ─────────────────────────────────
+    # arm switching (run_arms.py semantics)
     applied = False
     arm_info: dict[str, dict] = {}
     arm_legs: dict[str, str] = {}        # which weights each arm's CLOSING legs run under
@@ -410,7 +375,7 @@ def main() -> int:
               flush=True)
         return rep["delta_norm"]
 
-    # ── the probe ─────────────────────────────────────────────────────────────
+    # the probe
     maps_dir = Path(tempfile.mkdtemp(prefix="s17maps_"))
     rows: list[dict] = []
     parity: list[dict] = []
@@ -547,7 +512,7 @@ def main() -> int:
               f"(hard {100 * (macro_over(arm_rows, 'cls_miou_hard') or 0):.2f}) | "
               f"loss {macro_over(arm_rows, 'loss'):.4f}", flush=True)
 
-    # ── the replay proof, under EACH arm's own objective ──────────────────────
+    # the replay proof, under EACH arm's own objective
     # At global step 0 LoRA's B is zero, so the base arm's closing logits are the ones
     # every training run scored first; each record's `loss_first` must equal the base
     # row's column for that record's objective. One rel err per record, the max gated.
@@ -592,7 +557,7 @@ def main() -> int:
                "loss_first_train": (first or {}).get("loss_first_train"),
                "loss_first_rel_err": (max(errs) if errs else None)}
 
-    # ── summary + bundle ──────────────────────────────────────────────────────
+    # summary + bundle
     summary = {}
     for label, _ in arms:
         ar = [r for r in rows if r["arm"] == label]

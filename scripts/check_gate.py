@@ -1,18 +1,7 @@
 #!/usr/bin/env python3
-"""Stage gate checker — the single place a stage is declared complete.
+"""Validate stage bundles and file those that pass their recorded gates.
 
-A stage is not complete until this prints PASS. Do not start stage N+1 before then.
-
-Local stages (S0, S1, S7) are checked directly. GPU stages run in Colab and export a
-bundle; drop `results/inbox/<stage>.zip` here and run this to validate the schema, check
-the numeric gate, and file the bundle into `results/` on success.
-
-    python scripts/check_gate.py s0
-    python scripts/check_gate.py s4
-    python scripts/check_gate.py --list
-
-All thresholds live in GATES below, so every acceptance criterion in the project is
-auditable in one screenful. Values are fractions (0.619), printed as percentages.
+Thresholds are stored in GATES; values are fractions and displayed as percentages.
 """
 
 from __future__ import annotations
@@ -33,9 +22,7 @@ sys.path.insert(0, str(REPO / "src"))
 from occl import paths, registry  # noqa: E402
 
 
-# ── check primitives ─────────────────────────────────────────────────────────
-
-
+# check primitives
 @dataclass
 class Result:
     ok: bool
@@ -90,9 +77,7 @@ class Predicate:
         return Result(ok, self.label, detail)
 
 
-# ── local checks ─────────────────────────────────────────────────────────────
-
-
+# local checks
 def run_pytest(_: dict) -> tuple[bool, str]:
     py = REPO / ".venv" / "bin" / "python"
     exe = [str(py)] if py.exists() else [sys.executable]
@@ -204,7 +189,7 @@ def smoke_band(rec: dict) -> tuple[bool, str]:
                            f"need [{100 * lo:.0f}, {100 * hi:.0f}]")
 
 
-# ── measured baselines the derived arms are judged against ───────────────────
+# measured baselines the derived arms are judged against
 #
 # Both are PNG-era (lossless cache) so a comparison against them is same-pixel-pipeline.
 # They exist so the s5c/s6b gates can ask "did this arm damage the subspecies it was not
@@ -252,8 +237,7 @@ S6_MAJOR_PNG = {
 }
 
 
-# ── gate table ───────────────────────────────────────────────────────────────
-
+# gate table
 GATES: dict[str, dict] = {
     "s0": {
         "title": "Scaffold + paper-faithful metric",
@@ -2969,7 +2953,7 @@ GATES["s17d"] = dict(
 )
 
 
-# ── S18: the cycle's information bottleneck ──────────────────────────────────
+# S18: the cycle's information bottleneck
 #: What an S18 fine-tune may deviate from the established SAM 2 recipe on, and the one
 #: value each axis takes (pre-registered, README "S18 brief"): the binary-valued prompt
 #: (`ste_threshold`), the rotated closing end (±10°), the closing legs on adapters
@@ -3149,9 +3133,7 @@ GATES["s18"] = dict(
 )
 
 
-# ── bundle handling ──────────────────────────────────────────────────────────
-
-
+# bundle handling
 def _s17_primary(r):
     """The s17 results block of the PRIMARY adapter arm (the first non-base arm)."""
     return dig(r, f"results.{dig(r, 'results.primary')}")
@@ -3341,9 +3323,7 @@ def file_bundle(stage: str, rec: dict) -> None:
     print(f"    filed bundle -> {dst.relative_to(REPO)}")
 
 
-# ── driver ───────────────────────────────────────────────────────────────────
-
-
+# driver
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("stage", nargs="?", help="s0 .. s9")

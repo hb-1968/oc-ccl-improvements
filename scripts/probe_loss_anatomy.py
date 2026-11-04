@@ -1,26 +1,5 @@
 #!/usr/bin/env python3
-"""Where the cycle loss lives — the anatomy of one arm's epoch from a probe bundle. CPU.
-
-    python scripts/probe_loss_anatomy.py --bundle s17probe_beetle.zip [--arm base] [--top 10]
-
-The per-trait cycle's loss is a mean over C channels of BCE + Dice on the closing
-prediction. That blend hides two very different failures:
-
-  unfound   the forward leg claimed NO pixel of trait c on the query. The reverse prompt
-            for c is empty, the closing target is c's full mask on x0 — an ill-posed
-            reconstruction, and S10 showed its forward-leg gradient is EXACTLY zero: every
-            bit of that channel's loss flows through the reverse leg only.
-  takeover  trait c WAS found on the query but the closing leg lost it (closing IoU
-            collapses while forward IoU was fine) — usually another channel painting its
-            region, the failure `excl` (S13) was built for.
-
-This reads the probe's per-pair, per-channel columns (`bce_per_channel`,
-`dice_per_channel`, `fwd_found`, `fwd_per_trait`, `cls_per_trait`) and reports, per arm:
-the loss distribution over pairs and how much of the epoch's total the worst pairs carry;
-the share of the epoch's BCE that sits on unfound channels; per-trait found rates and
-loss; the takeover count; and the top pairs with their mechanism tags. No training, no
-GPU: this is the "before" picture the fine-tune's first step sees.
-"""
+"""Summarize forward and closing loss components from a saved training-pair probe."""
 
 from __future__ import annotations
 
@@ -75,7 +54,7 @@ def anatomy(rows: list[dict], top: int = 10) -> dict:
             raise ValueError(f"step {p['step']}: {len(p['dice_c'])} dice channels for "
                              f"{len(p['ids'])} class ids")
 
-    # ── per-channel decomposition of the epoch's BCE ─────────────────────────
+    # per-channel decomposition of the epoch's BCE
     unfound_bce = found_bce = 0.0
     per_trait: dict[int, dict] = {}
     takeovers = []
@@ -108,7 +87,7 @@ def anatomy(rows: list[dict], top: int = 10) -> dict:
     def m(xs):
         return float(np.mean(xs)) if xs else None
 
-    # ── correlates of the pair loss ──────────────────────────────────────────
+    # correlates of the pair loss
     n_unf = np.array([sum(1 for f in p["found"] if not f) for p in pairs], dtype=float)
     fwd = np.array([p["fwd_miou"] if p["fwd_miou"] is not None else np.nan for p in pairs])
 

@@ -1,21 +1,7 @@
 #!/usr/bin/env python3
-"""OC-CCL fine-tuning — S8.
+"""Run OC-CCL fine-tuning and record its configuration and adapter weights.
 
-Two modes:
-
-    # S8a: prove the mechanism, no training. Runs on CPU.
-    python scripts/run_finetune.py --diagnostics-only --device cpu --out s8a.zip
-
-    # S8b: one epoch at a given learning rate.
-    python scripts/run_finetune.py --lr 3e-5 --out s8b_lr3e-5.zip
-
-The diagnostics mode exists because a fine-tune fails silently in ways a loss curve cannot
-show. It measures the gradient reaching the forward leg under BOTH prompt modes, so the
-fixed value is reported next to the broken one it replaces rather than on its own.
-
-Every deviation this stage fixes is recorded in the bundle, and `registry.classify` reads
-`occl.*` and `finetune.*` from it — so a run that quietly reverts to SST's hard-threshold
-prompt or trains without LoRA classifies as `modified` rather than passing as faithful.
+The established SAM 2 recipe is sam2_crown; a stage brief must declare deviations.
 """
 
 from __future__ import annotations

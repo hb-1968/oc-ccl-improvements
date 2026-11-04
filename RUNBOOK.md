@@ -1,10 +1,9 @@
-# Runbook — working this repo from a laptop (and what needs a human at the keyboard)
+# Runbook
 
-Everything that is code, notebooks, tests, README, per-stage briefs/results and the filed
-bundles (`results/*.zip`, `docs/figures/`) lives in this repo. What deliberately does NOT
-(`.gitignore`): the `SST/`, `sam3/`, `SeC/` checkouts, model weights, the 2.8 GB pixel
-cache `oc-ccl-data/cache-png/`, and `results/inbox/` (raw pulls; the filed copies are in
-`results/`).
+Setup and execution for the published S18 implementation. See the
+[overview](README.md) for scope and the [ledger](EXPERIMENTS.md) for stage details.
+Model checkouts (`SST/`, `sam3/`, `SeC/`), weights, the pixel cache and raw inbox
+bundles are external inputs excluded from version control.
 
 ## 1. Laptop bootstrap (once)
 
@@ -16,7 +15,7 @@ git clone --depth 1 https://github.com/facebookresearch/sam3 sam3  # only for th
 ```
 `paths.sst_root()` / `paths.sam3_root()` find `./SST` and `./sam3` first; no env vars needed
 when the checkouts sit inside the repo. Tests: `.venv/bin/python -m pytest tests/ -q`
-(≈ 4 min; 343 pass at BUILD 18).
+(the BUILD 18 record reports 343 passing tests).
 
 The pixel cache is needed only to RENDER sheets locally or to run a CPU smoke. Copy it
 from the desktop or the cluster (one password each):
@@ -28,10 +27,11 @@ rsync -a <user>@scc1.bu.edu:/projectnb/<project>/occl/data/cache/ oc-ccl-data/ca
 A CPU smoke of the real model additionally needs `SST/checkpoints/sam2_hiera_large.pt`
 (`bash SST/checkpoints/download_ckpts.sh`, 898 MB, sha256 pinned in `occl.paths`).
 
-## 2. The cluster loop for a stage (S18 is the current one)
+## 2. Cluster execution (S18 implementation)
 
-Claude cannot type your SCC password: every ssh line below is yours to paste. Each is ONE
-session (one prompt).
+SCC access requires your password and Duo authentication. Each command below uses
+one SSH session. The code-layer replacement command wipes the old cluster layer;
+do not use it while a stage is active.
 
 ```bash
 # a) push the code layer (rebuilds the tarball from THIS checkout, wipes the old layer on the cluster, re-runs setup)
@@ -61,15 +61,9 @@ seed: `.venv/bin/python scripts/pair_cells.py results/inbox/cells/s18_beetle_cro
 
 d) Commit the landed evidence: `git add results/s18*.zip docs/figures/s18 README.md && git commit -m "S18: landed"` and push.
 
-## 3. What Claude can and cannot do unattended
+## 3. Local work and authentication
 
-| needs a human | why |
-| :-- | :-- |
-| every `ssh …scc1.bu.edu` line (push, pull) | password / Duo prompt |
-| OnDemand session request + Run All | browser, scheduler grant |
-| `git push` / `gh repo create` | credentials on the machine in use |
-| deleting anything under `results/` or the memory notes | destructive; ask |
-
-Everything else — building the tarball, gating a pulled bundle, rendering, combining,
-tests, README/result sections — Claude runs from the repo root with `.venv/bin/python`
-(the system python has no matplotlib/torch).
+Build archives, check bundles, render figures and run tests from the repository
+root with `.venv/bin/python`. SCC login requires password/Duo authentication;
+OnDemand sessions require a scheduler allocation. Git publication requires
+credentials for the destination repository. Preserve filed results and run banks.

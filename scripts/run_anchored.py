@@ -1,32 +1,8 @@
 #!/usr/bin/env python3
-"""The per-run reading of the paper's OC-CCL — N anchored fine-tunes, one process. S10.
+"""Run per-reference anchored OC-CCL fine-tunes for S10.
 
-    python scripts/run_anchored.py --dataset beetle --n-runs 20 \
-        --support-selection canonical_balanced --resume-dir <dir> --adapter-dir <dir> \
-        --mask-mode per_trait --rotation-aug-deg 27.8 \
-        --rotation-aug-rule "half the beetle train pool circular std (55.6/2)" \
-        --stage s10_anchored --out s10_occl_anchored.zip
-
-**Why this exists.** Paper A2.2 fine-tunes on "one fixed labeled image as x₀"; A2.3 says
-every evaluation run samples a *different* reference. The paper never states whether the
-OC-CCL rows re-fine-tune per run or reuse one model across all 20 — and its OOD section
-fine-tunes per *test image*, so per-run anchoring is in character. This script runs that
-reading: run *i*'s model is fine-tuned with run *i*'s own drawn support as x₀ (resolved
-through `curation.draw_supports`, the same dispatch evaluation uses, so training anchors on
-exactly the image the run scores with), then evaluated on run *i* alone. The label budget
-per run is 1, which is the paper's headline claim.
-
-**One process, one resume fingerprint.** All N per-run JSONs share a *composite*
-`weights_id` — the checkpoint name plus a hash over all N adapter files — set before any
-scoring. The slug already distinguishes runs by `run_idx`; the composite makes any adapter
-change invalidate the whole arm, which is conservative in the direction that costs a re-run
-rather than a wrong conclusion. The guard this design needs in exchange: before the final
-zero-inference merge, every expected per-run JSON must already exist, because the merge
-pass computes nothing and whatever model happens to be loaded must never fill a gap.
-
-**The embedding cache survives adapter swaps.** LoRA scopes to `memory_encoder` and
-`sam_mask_decoder`; an adapted path under `image_encoder` would silently invalidate every
-cached embedding, so its absence is asserted rather than assumed.
+Each reference has its own adapter and recorded support identity. This is a
+separate experimental reading from one shared dataset-wide fine-tune.
 """
 
 from __future__ import annotations
@@ -159,7 +135,7 @@ def main() -> int:
     adapter_dir = Path(args.adapter_dir)
     adapter_dir.mkdir(parents=True, exist_ok=True)
 
-    # ── phase 1: train (or validate-and-reuse) one adapter per run ────────────────────
+    # phase 1: train (or validate-and-reuse) one adapter per run
     trainings: dict[int, dict] = {}
     adapter_paths: dict[int, Path] = {}
     for i in runs:
@@ -222,7 +198,7 @@ def main() -> int:
     # start from a defined state every run, and always in eval().
     model.eval()
 
-    # ── phase 2: encode once, then score run i under adapter i ────────────────────────
+    # phase 2: encode once, then score run i under adapter i
     keys = distinct_images(ds, g, args.shot, args.n_runs, args.support_selection,
                            args.run_start, run_end)
     print(f"precomputing {len(keys)} embeddings...", flush=True)
@@ -261,7 +237,7 @@ def main() -> int:
         print(f"  run {i}: mIoU {100 * r['miou']:.2f} (x0={anchors[i]}, "
               f"||dW||={delta:.4f})", flush=True)
 
-    # ── phase 3: zero-inference merge, guarded ────────────────────────────────────────
+    # phase 3: zero-inference merge, guarded
     fp = run_fingerprint(ds, adapter)
     missing = []
     for i in runs:

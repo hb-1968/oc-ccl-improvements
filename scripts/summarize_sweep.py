@@ -1,24 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-arm summary for the S8b learning-rate sweep.
-
-    python scripts/summarize_sweep.py
-
-**Why a separate view is needed.** The per-bundle gate can only report a within-run trend,
-and that trend is confounded: `CyclePairs` fixes one deranged pair order and every arm sees
-it, so if the back half of that order happens to be harder, *every* arm's loss rises across
-the epoch regardless of learning. Measured, it does — the low-LR arms all show h2 > h1 by
-about the same amount. Read alone, that says "training makes it worse", which is false.
-
-Pair difficulty is common to all arms, so it **cancels in a paired comparison** — the same
-argument that makes support difficulty cancel in `registry.compare`, applied one level down
-to training steps instead of evaluation seeds. This script pairs on step index and
-bootstraps the mean difference.
-
-It also checks the one thing that must hold if the arms are otherwise identical: **step-0
-loss must be equal across every arm**, because LoRA is an exact no-op before the first
-update. If it is not, something other than the learning rate varied and no comparison here
-is valid.
-"""
+"""Summarize saved learning-rate sweep arms and their matched comparisons."""
 
 from __future__ import annotations
 

@@ -1,30 +1,8 @@
 #!/usr/bin/env python3
-"""Build ``occl-repo.zip`` — the code bundle the Colab notebook extracts.
+"""Package code for Colab without local environments, data or model weights.
 
-    python scripts/build_repo_zip.py
-
-The notebook and the code travel separately: the ipynb is opened in Colab by hand, while
-`REPO_SOURCE = "drive_zip"` pulls everything else from this one zip on Drive. Nothing
-else pairs the two — the first S10 session ran a current notebook against a stale zip and
-died at argparse, with every fine-tune reporting `unrecognized arguments` for flags the
-notebook had just been taught to pass. (The notebook used to say ``make occl-repo.zip``;
-no Makefile ever existed — the zip was built ad hoc, which is exactly how it went stale.)
-
-So this script does two things, always together:
-
-1. regenerates ``notebooks/run_stage.ipynb`` from the percent-format source
-   (`scripts/make_notebook.py`), so the ipynb you upload and the zip you upload were
-   produced from the same tree;
-2. zips the runtime tree with repo-relative paths (the notebook does ``unzip -d {REPO}``,
-   so there must be no top-level wrapper directory).
-
-The extraction cell also asserts the extracted `STAGES` tuple contains the stage being
-run, so a zip that predates a new stage fails at extraction with a message naming this
-script, rather than 400 lines later inside a worker log.
-
-After building: replace ``occl-repo.zip`` on Drive (the notebook probes
-``MyDrive/occl/occl-repo.zip`` and its siblings) and, when the notebook itself changed,
-re-open the fresh ipynb too.
+Use the explicit archive allowlist to avoid recursive Drive copies. The
+notebook checks the extracted source before launching workers.
 """
 
 from __future__ import annotations

@@ -1,35 +1,8 @@
 #!/usr/bin/env python3
-"""Where an episode's time actually goes — the instrument the throughput anomaly needed.
+"""Profile episode components on the selected runtime.
 
-    python scripts/profile_episode.py --dataset butterfly_major --shot 5 \
-        --cache-root <cache> --group malleti --episodes 12
-
-Butterfly at 5-shot ran at **2.95 s/image through `fanout` (S6b)** and **~13 s/image
-through the s8d launcher**, on the same card, same protocol, same 100 episodes a run. Three
-candidate causes were identified by reading the code; this measures them instead, because
-the last time a number here was inferred rather than measured it was wrong by 2.5x in one
-direction and 2x in the other.
-
-What it reports, per episode:
-
-* **frame prep** — SST's `load_video_frames`, run inside `init_state`. A PIL round-trip and
-  a float64 divide per frame; measured off-GPU at 145 ms for 6 frames against 48 ms for 2.
-* **`_get_image_feature` calls, and the bytes they move.** The embedding cache skips the
-  image *encoder* but the patch still re-uploads the raw 12.6 MB frame on every call, and
-  **every caller in SAM 2 discards it** (`_, _, current_vision_feats, ...` in all three of
-  `_run_single_frame_inference`, `_run_memory_encoder` and `_get_empty_mask_ptr`). The call
-  count is `1 + shot*classes + shot + 1`, so butterfly at 5-shot x 10 traits pays 57 of
-  them — 718 MB of pageable host-to-device per episode — against 13 at 1-shot.
-* **prompting** (`add_new_mask`), **propagation**, and **scoring**.
-
-Then it A/Bs the two `init_state` placement flags. Both are pure memory-placement choices —
-`offload_video_to_cpu` decides whether frames are normalised on CPU or GPU, and
-`offload_state_to_cpu` whether the memory bank round-trips to host between frames — so the
-logits must come back **bit-identical**, and that is asserted rather than assumed. If they
-do, `--gpu-frames` on `run_eval.py`/`run_arms.py` turns the redundant upload into a no-op.
-
-Cheap on purpose: a dozen episodes, one group, no bundle. Run it before commissioning
-anything long.
+Separate precomputation, steady-state inference and memory costs. Measurements
+apply to the recorded hardware, cache state and configuration.
 """
 
 from __future__ import annotations
@@ -337,7 +310,7 @@ def main() -> int:
     print("\nDivide worker-hours by the worker count for wall clock. `plan_workers` sizes "
           "that from\nVRAM; `peak` above is ONE worker with one group cached.")
 
-    # ── the bundle ───────────────────────────────────────────────────────────
+    # the bundle
     #
     # `fixed_gb` is the transferable number: peak residency minus THIS run's cache. The raw
     # peak is not transferable and must not be — the profiler warms run 0 only, so its cache

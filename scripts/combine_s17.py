@@ -1,45 +1,8 @@
 #!/usr/bin/env python3
-"""S17: one dataset's training-pair probe against its fine-tune bundle — per-pair deltas.
+"""Combine S17 training-pair probes and test evaluations.
 
-    python scripts/combine_s17.py --out s17_beetle.zip --control carrier \
-        probe=s17probe_beetle.zip \
-        ft:carrier=s17ft_sam2_beetle_carrier.zip ft:found_mask=... ft:nobce=... ft:excl=... \
-        [eval:base=s17_beetle_base.zip eval:carrier=... eval:base_tta=... eval:carrier_tta=... ...]
-
-    python scripts/combine_s17.py --merge --out s17.zip \
-        beetle=s17_beetle.zip butterfly_major=s17_butterfly_major.zip
-
-`ft:<arm>=` names the fine-tune bundle of each adapter arm the probe scored (the old
-`ft=` form serves a single-adapter probe). `--control` names the arm the others are
-paired against besides base (the carrier — the S11 crown recipe). `eval:<cell>=` are
-run_eval bundles of the test-split evaluation (S11 protocol): `<arm>` plain and
-`<arm>_tta`; they are paired per seed through `registry.compare` — every adapter vs
-base, every non-control adapter vs the control, TTA vs plain per arm — and the base
-cell is pinned to the S11 ledger level so a protocol slip cannot pass as a result.
-
-The probe bundle (`scripts/probe_train_pairs.py`) holds one row per (arm, training pair)
-for both cycle legs; the fine-tune bundle (`scripts/run_finetune.py`) holds the adapter's
-provenance and `training.losses` per step. This joins the two and pairs every adapter arm
-against the base arm PER TRAINING PAIR — the unit here is a cycle pair scored under two
-weights, not a support seed, so the bootstrap is `registry.paired_bootstrap` directly
-(the same numbers `compare` reports, on a different unit).
-
-Verified before any number is emitted (the gate re-reads the evidence):
-  * the probed adapter IS the fine-tune bundle's adapter (`lora_sha`, else the S15 pin:
-    same file name and ||dW|| within rel 1e-4);
-  * the probe's replay recipe equals the bundle's recorded `occl` block;
-  * the replay checks passed and the step-0 loss parity holds (probe.replay);
-  * every training pair was probed (`n_pairs == steps_per_epoch`) — a `--max-pairs`
-    smoke is combined with `coverage_ok: false`, and the s17 gate refuses it.
-
-`training.losses[train_step]` rides along on every pair: the loss the optimiser saw at
-that step (weights moving) beside the frozen-base and frozen-adapter losses on the same
-pair — three readings of one number.
-
-Objectives (S17 arms): the probe scores every pair under every objective post hoc, so
-each arm's disqualifier ("did the adapter lower its OWN objective on its own pairs")
-reads the column named by the arm's recipe (`probe.objective_of`), and the plain
-carrier loss is the common yardstick reported for every arm.
+Keep forward and closing reads separate; reconstructing a training reference
+does not establish improved query segmentation.
 """
 
 from __future__ import annotations

@@ -1,36 +1,5 @@
 #!/usr/bin/env python3
-"""S17 — contact sheets and summary figures from a training-pair probe bundle. CPU, no torch.
-
-    python scripts/render_probe_sheets.py --bundle results/s17.zip --dataset beetle \
-        --select most_degraded --n 6 --out-dir docs/figures/s17
-
-The GPU side (`scripts/probe_train_pairs.py`) banked every predicted label map as a
-uint8 PNG and every score in `pairs.csv`; the images themselves live in the local
-cache and the GT masks in the SST checkout. So any training pair can be looked at here,
-after the fact, on a machine with no GPU — sorted by whatever the question is.
-
-One row per pair, eight panels:
-
-    x0 | y0 (GT of x0) | x | GT(x) | forward base | forward ft | closing base | closing ft
-
-Forward maps are in GT-native space (the eval metric's), closing maps in model space
-(1024², the loss's). Label colours follow `run_eval.py::render_overlay` (nipy_spectral,
-vmin 0, vmax = the dataset's largest trait id, nearest) so a trait keeps its hue across
-every figure in the project.
-
-`--select`:  spread          worst / median / best pair by the BASE arm's forward mIoU
-             most_improved   largest ft − base delta on `--by`
-             most_degraded   smallest (most negative) delta on `--by`
-             worst_base      lowest base value on `--by`
-             best_base       highest base value on `--by`
-             random          seeded draw
-`--by`:      fwd (forward mIoU, default) | cls (closing mIoU) | loss (the cycle loss;
-             "improved" = loss DOWN)
-
-Two summary figures per dataset ride along (`--figures`): the per-pair forward Δ vs
-closing Δ scatter (the correlation the brief pre-registers) and per-trait forward Δ
-bars with their bootstrap CIs.
-"""
+"""Render contact sheets and summaries from saved training-pair probe bundles."""
 
 from __future__ import annotations
 

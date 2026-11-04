@@ -33,12 +33,8 @@ import os
 
 STAGE = "s14sam3"        # fixed — this notebook runs exactly one stage
 
-# SCC project space. setup.sh prints the exact line for the OnDemand "Pre-Launch
-# Command": `export OCCL_PROJECT_ROOT=<where occl/ was unpacked>`. OCCL_PROJECT
-# (just the project name) is the shorthand for the default /projectnb/<name>/occl
-# layout; a nested unpack (e.g. /projectnb/<name>/<user>/sst/occl) needs the root.
-# Home directories are quota'd at 10 GB, so NOTHING large lives there: venv,
-# HF cache, checkpoint, image cache and results all sit under this root.
+# Use OCCL_PROJECT_ROOT for the unpacked tree. Keep environments, caches, weights and
+# results in project space, not the home quota.
 SCC_PROJECT = os.environ.get("OCCL_PROJECT", "")
 PROJECT = os.environ.get("OCCL_PROJECT_ROOT") or f"/projectnb/{SCC_PROJECT}/occl"
 DATA_ROOT = f"{PROJECT}/data"          # occl-cache-png.zip and/or cache/ (manifest.jsonl)
@@ -57,22 +53,12 @@ S14_DATASETS = ["butterfly_major", "beetle"]
 S14_SEL = {"butterfly_major": "canonical_placement",   # each dataset's best 1-shot
            "beetle": "canonical_balanced"}
 
-# ── layout knobs (the only SCC-specific tuning) ──────────────────────────────
-#: Per-job VRAM in GB, from the Colab A100-40GB session that ran this stage:
-#: plain eval workers measured 5-7 GB, TTA workers 9.8-10.0 GB (dual-orientation
-#: fp32 cache + sam3's decoder workspace across three arms). Merges build the
-#: model and replay banked runs with --no-precompute. Fine-tunes are `None` =
-#: EXCLUSIVE (a whole card): their residency was never measured — the Colab
-#: session ran each alone on 40 GB — and an under-priced fine-tune sharing a
-#: card would OOM the eval workers next to it. Lower it once a run has measured
-#: it (`nvidia-smi` on the node during the finetune phase).
+# Per-job VRAM estimates (GB): plain evaluation 5–7, TTA 9.8–10.0 on A100-40GB. None
+# reserves a whole GPU for unmeasured fine-tunes; revise only from runtime measurements.
 S14_JOB_GB = {"plain": 7.5, "tta": 10.5, "merge": 8.0, "ft": None}
 JOB_GB = S14_JOB_GB          # the stage-neutral name the shared GPU-probe cell reads
-#: How many run-slices each (dataset, group) is cut into, per fan. Narrower
-#: slices mean more independent jobs to spread over the cards; the price is
-#: that every slice re-encodes its group's test images (~100 images, seconds).
-#: 20 runs / 5 slices = 4 runs a job: butterfly 5 groups x 5 x 2 fans = 50 jobs,
-#: beetle 10, plus 4 fine-tunes and 8 merges.
+# Split each group into run slices; more slices improve scheduling but repeat image
+# encoding.
 S14_SLICES = {"plain": 5, "tta": 5}
 VRAM_HEADROOM = 0.92
 STAGGER_S = 20               # one launch per interval: N workers must not load sam3.pt at once
@@ -415,10 +401,7 @@ def run_slices(n_runs, n_workers):
 
 
 def run(cmd: list[str]) -> None:
-    # Tee the child through the kernel's stdout: a subprocess writing to its
-    # inherited fds is invisible in the cell output, so a failing step surfaced as
-    # a bare CalledProcessError with its traceback lost to the runtime log (the
-    # first s14sec commissioning attempt died blind exactly this way).
+    # Stream child output into the cell so failures retain their traceback.
     for _i, _c in enumerate(cmd):
         assert isinstance(_c, str), (
             f"cmd[{_i}] is {_c!r} (after {cmd[max(0, _i - 1)]!r}) — a config "

@@ -1,44 +1,8 @@
 #!/usr/bin/env python3
-"""S5-DIAG — isolate why Butterfly Major lands 12.5 points below the paper.
+"""Compare evaluation and preprocessing variants on Butterfly Major.
 
-    python scripts/run_diagnostic.py --cache-root /content/cache --checkpoint ckpt.pt \
-        --groups cyrbia malleti --n-runs 2 --out s5diag.zip
-
-Context. S5a measured **68.54 ± 3.15** against the paper's **81.0 ± 1.0**. Three
-explanations have already been eliminated *offline*, so this script does not re-test them:
-
-* **Aggregation** is not the gap. All four readings of "averaged over traits in images"
-  (per-image macro, per-trait macro, pooled, and skip-unpredictable) agree within 0.5
-  points on both datasets.
-* **Support curation** is not the gap. Fixing all three trait-incomplete supports is worth
-  +0.8, and stratum-matching supports to the test composition is worth +0.08.
-* **The data path is correct.** The model-free copy baseline reproduces the paper's
-  Table A3 on *both* datasets -- Major **21.04 ± 2.98** vs **20.9 ± 10.9**, Beetle
-  **12.09** vs **13.2 ± 6.7**. Masks, splits, trait vocabularies, label-map resize and
-  aggregation are therefore all verified against a published number.
-
-That leaves the model path, and exactly three live hypotheses:
-
-  H1  ASSIGNMENT RULE. The paper never states how overlapping trait predictions are
-      resolved. We argmax; SST's own `per_trait_iou` binarises each trait independently.
-      Independent binarisation is never lower per-trait, so it is the natural suspect for
-      numbers that sit high. `--groups` x `--n-runs` here scores BOTH from identical
-      logits, so the comparison is exact rather than inferred.
-
-  H2  IMAGE RESAMPLING. The copy baseline validates masks but never touches images, so it
-      cannot clear this. We downsample ~5.3x (5472 -> 1024) with `cv2.resize`'s default
-      INTER_LINEAR, faithful to SST's `read_image`, but that is a known aliasing case and
-      the failing subspecies are exactly the ones whose wings are small and dark. Pass
-      `--cache-root` pointing at an INTER_AREA-derived cache to test it; everything else
-      is held fixed.
-
-  H3  SAM 2 INVOCATION. Recorded, not tested: image_size, num_maskmem,
-      apply_postprocessing, non-overlap constraint, dtype. A mismatch here would depress
-      every subspecies uniformly.
-
-The slice is deliberately two subspecies at the extremes -- cyrbia (44.36, worst) and
-malleti (79.12, near paper level). A cause that explains the gap must move cyrbia much
-more than malleti; a cause that moves both equally is a global bug instead.
+Record deviations separately from the fixed protocol; these diagnostics do
+not replace the primary score.
 """
 
 from __future__ import annotations

@@ -1,53 +1,9 @@
 #!/usr/bin/env python3
-"""Build the SCC archives — a DATA layer uploaded once and a CODE layer re-uploaded
-per iteration, both unpacking into ``/projectnb/<project>/occl/``.
+"""Build separate SCC data and code archives with provenance manifests.
 
-    python scripts/build_scc_tarball.py                  # both: ../occl-scc-data.tar.gz + ../occl-scc-code.tar.gz
-    python scripts/build_scc_tarball.py --layer code     # ~10 MB — the iteration unit
-    python scripts/build_scc_tarball.py --layer data     # ~3 GB — cache + masks + ledger
-    python scripts/build_scc_tarball.py --layer all      # one combined archive
-    python scripts/build_scc_tarball.py --ledger-dir ~/Downloads/s11-cells
-
-First time, on the cluster:
-
-    cd /projectnb/<project> && tar xzf occl-scc-data.tar.gz && tar xzf occl-scc-code.tar.gz
-    bash occl/setup.sh
-
-Each later OC-CCL iteration (a loss / fine-tuning change in ``occl.finetune``):
-
-    python scripts/build_scc_tarball.py --layer code && ssh <user>@scc1.bu.edu \
-        'cd /projectnb/<project> && (bash occl/wipe.sh </dev/null || true) && tar xzf - && PYMOD=python3/3.12.4 bash occl/setup.sh </dev/null' \
-        < ../occl-scc-code.tar.gz                      # one ssh session: the archive rides on stdin
-
-``wipe.sh`` removes the code layer and everything DERIVED from it (per-run JSON,
-adapters, logs, stage bundles) and keeps what a new iteration reuses unchanged: the
-image cache, SST's masks, the S11 ledger, ``sam3.pt``, the HF cache and the venv.
-
-The layers, and why each file is in one:
-
-    DATA  (invariant across OC-CCL iterations — pixels, labels, the SAM 2 anchor)
-      data/cache/                the lossless PNG image cache, 1787 images + manifest
-      SST/data/                  committed masks + split manifests (what the datasets read)
-      SST/src/                   the vendored SAM 2 (13 MB; diagnostics import it lazily)
-      SST/README.md, SST/.git/   the sentinel paths.sst_root checks, and a STUB .git holding
-                                 only HEAD, so env.json's `sst_commit` still resolves
-      results/s11_*.zip          the banked SAM 2 ledger cells, if --ledger-dir has them
-    CODE  (the iteration unit — everything a semantic change to OC-CCL can touch)
-      oc-ccl-improvements/src/occl, pyproject.toml, the worker scripts the notebooks
-                                 launch, scc_setup.sh, and the SCC notebooks (.ipynb only)
-      sam3/sam3/, LICENSE, COMMIT   the tracker package (6 MB) — no assets/examples/.git
-      setup.sh, wipe.sh, README-SCC.md, MANIFEST-<layer>.json
-
-Shaved relative to the whole tree, and why it is safe: SST/assets, gui, experiments,
-docs and both checkpoints (nothing on the sam3 path opens them — the SAM 2 weights are
-898 MB the sam3 stages never load; the SAM 2 stage, s17, downloads them from Meta's
-public URL into ckpts/ once, sha256-pinned); sam3/assets, examples, scripts, test (demo material);
-this repo's tests, README, run_stage / Colab notebooks and the .py notebook sources
-(the gate runs LOCALLY on the returned bundle, and the ipynb is generated from its .py
-in this same invocation); every .git object store (122 MB) in favour of recorded shas.
-
-Never shipped: ``sam3.pt`` (HF-gated — the notebook downloads it into ckpts/ from a
-token in hf/token) and ``oc-ccl-data/originals`` (19 GB the cache already memoises).
+Upload the data layer once and replace the code layer between experiments.
+Never run wipe.sh during an active stage: it removes derived runs and adapters.
+Model weights and the original image downloads are not included.
 """
 
 from __future__ import annotations
@@ -117,8 +73,7 @@ def _add_tree(members: dict[str, Path], src: Path, arc: str) -> None:
             members[f"{arc}/{p.relative_to(src).as_posix()}"] = p
 
 
-# ── the two plans — pure; the tests run them on stub trees ───────────────────
-
+# the two plans — pure; the tests run them on stub trees
 def plan_data(sst: Path, cache_dir: Path | None, ledger_dir: Path | None
               ) -> tuple[dict[str, Path], dict[str, str], list[str]]:
     """(members, generated_text_files, missing_ledger) for the DATA layer."""
@@ -182,8 +137,7 @@ def plan_code(repo: Path, sam3: Path) -> tuple[dict[str, Path], dict[str, str]]:
     return members, generated
 
 
-# ── generated files ──────────────────────────────────────────────────────────
-
+# generated files
 SETUP_SH = """#!/usr/bin/env bash
 # Thin wrapper: the real work is oc-ccl-improvements/scripts/scc_setup.sh, which
 # infers the SCC project from where this archive was unpacked (/projectnb/<project>/occl).

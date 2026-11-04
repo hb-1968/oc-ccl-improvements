@@ -65,10 +65,8 @@ import os
 
 STAGE = "s18"            # fixed — this notebook runs exactly one stage
 
-# SCC project space. setup.sh prints the exact line for the OnDemand "Pre-Launch
-# Command": `export OCCL_PROJECT_ROOT=<where occl/ was unpacked>`. OCCL_PROJECT
-# (just the project name) is the shorthand for the default /projectnb/<name>/occl
-# layout; a nested unpack (e.g. /projectnb/<name>/<user>/sst/occl) needs the root.
+# Use OCCL_PROJECT_ROOT for the unpacked tree. Keep environments, caches, weights and
+# results in project space, not the home quota.
 SCC_PROJECT = os.environ.get("OCCL_PROJECT", "")
 PROJECT = os.environ.get("OCCL_PROJECT_ROOT") or f"/projectnb/{SCC_PROJECT}/occl"
 DATA_ROOT = f"{PROJECT}/data"          # occl-cache-png.zip and/or cache/ (manifest.jsonl)
@@ -446,10 +444,7 @@ def run_slices(n_runs, n_workers):
 
 
 def run(cmd: list[str]) -> None:
-    # Tee the child through the kernel's stdout: a subprocess writing to its
-    # inherited fds is invisible in the cell output, so a failing step surfaced as
-    # a bare CalledProcessError with its traceback lost to the runtime log (the
-    # first s14sec commissioning attempt died blind exactly this way).
+    # Stream child output into the cell so failures retain their traceback.
     for _i, _c in enumerate(cmd):
         assert isinstance(_c, str), (
             f"cmd[{_i}] is {_c!r} (after {cmd[max(0, _i - 1)]!r}) — a config "
@@ -884,7 +879,7 @@ for _ds_name in S17_DATASETS:
                  "--eval-parity", str(S17_EVAL_PARITY),
                  "--stage", f"{STAGE}probe", "--out", _prb]))
 
-    # ── the test split (S11 protocol): plain + TTA fans over base + every adapter ──
+    # the test split (S11 protocol): plain + TTA fans over base + every adapter
     if _ds_name not in S17_EVAL_DATASETS:
         continue
     _sel = S17_SEL[_ds_name]
@@ -936,7 +931,7 @@ for _ds_name in S17_DATASETS:
                     + (["--lora", _lora, "--lora-epochs",
                         str(_arm_epochs(S17_ARMS[_ds_name][_arm]))] if _lora else [])))
 
-    # ── the 5-shot transfer fan (S6's protocol): base + S17_SHOT5_ARMS, plain + TTA ──
+    # the 5-shot transfer fan (S6's protocol): base + S17_SHOT5_ARMS, plain + TTA
     if not S17_SHOT5_ARMS:
         continue                                   # S18: no 5-shot fan
     _armspec5 = ["--arms", "base="]

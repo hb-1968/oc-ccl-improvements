@@ -1,26 +1,7 @@
 #!/usr/bin/env python3
-"""S8c-tune — choose the epoch count by cross-validation INSIDE the train split.
+"""Select fine-tuning settings within the training split.
 
-    python scripts/run_tune.py --fold 0 --k 5 --epochs 10 --lr 1e-4 --out tune_f0.zip
-
-One fold per invocation, so folds run concurrently (training is ~2.3 GB apiece).
-
-**The selection must not see the test split.** Picking epochs by test mIoU would put the
-evaluation set into the model as surely as training on it — every number reported
-afterwards would come from data used to make a decision. `datasets.folds.CVFold`
-re-partitions the *train* split into fit and validation and re-points `test_ids()` at the
-validation fold, so the real test images are unreachable from this script by construction,
-not by discipline.
-
-**The criterion is per-trait mIoU, not the cycle loss.** The cycle reconstructs a merged
-foreground silhouette; the metric scores trait assignment. S8b showed cycle loss falling
-monotonically with learning rate with no evidence any of it transfers, so tuning against it
-would optimise the proxy. Scoring the fold's validation images through the real 1-shot
-protocol measures the thing we actually care about.
-
-**One training run yields the whole epochs curve.** Adapters are checkpointed after every
-epoch, and because LoRA never touches the image encoder all checkpoints share one set of
-embeddings — so scoring ten of them costs barely more than scoring one.
+Use training-only folds; test results do not select the epoch count.
 """
 
 from __future__ import annotations
@@ -108,7 +89,7 @@ def main() -> int:
         out.pop("_rows", None)
         return out["results"]["miou"]
 
-    # ── phase 1: TRAIN every grid point. No inference happens in this phase. ──
+    # phase 1: TRAIN every grid point. No inference happens in this phase.
     #
     # Train-then-score, never interleaved. SAM 2 memoises its rotary encoding on the
     # attention modules, so a scoring pass leaves an inference tensor behind that the next
@@ -137,7 +118,7 @@ def main() -> int:
               f"||dW||={report['lora_delta_norm']:.3f}, "
               f"{report['elapsed_s']:.0f}s", flush=True)
 
-    # ── phase 2: SCORE. The base first, before any adapter is loaded. ────────
+    # phase 2: SCORE. The base first, before any adapter is loaded.
     # Embeddings are kept throughout: the image encoder is never adapted, so ONE encode
     # serves every point on the grid.
     t_score = time.time()

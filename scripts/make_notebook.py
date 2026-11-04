@@ -1,38 +1,8 @@
 #!/usr/bin/env python3
-"""Build the Colab notebooks from the percent-format source run_stage.py.
+"""Generate .ipynb files from percent-format notebook sources.
 
-The .py is the maintainable, diffable source of truth; the .ipynb files are the
-artifacts you open in Colab. Regenerate after editing the .py:
-
-    python scripts/make_notebook.py
-
-Two notebooks, two sources:
-
-* ``run_stage.py -> run_stage.ipynb`` — the parameterized multi-stage notebook.
-* ``run_s14sam3.py -> run_s14sam3.ipynb`` — the STANDALONE sam3 pipeline (user
-  decision after the s14sec sessions: conflicting dependency stacks get a
-  dedicated notebook that can never run the wrong stage). Its shared helper
-  functions are verbatim copies of run_stage.py's, pinned by AST equality in
-  tests/test_s14_standalone.py — edit run_stage.py, re-copy, or the suite fails.
-* ``run_s14sam3_scc.py -> run_s14sam3_scc.ipynb`` — the same stage re-hosted on
-  the BU SCC's OnDemand Jupyter (multi-GPU, project space instead of Drive, no
-  google.colab). Its copied helpers are pinned the same way in tests/test_scc.py;
-  the multi-GPU packing lives in occl.scc rather than in the notebook.
-* ``run_s15_scc.py -> run_s15_scc.ipynb`` — the champion at 5-shot on the SCC. Its
-  session/cache/GPU/checkpoint cells are verbatim copies of run_s14sam3_scc.py's,
-  pinned cell-by-cell in tests/test_scc.py.
-* ``run_s17_scc.py -> run_s17_scc.ipynb`` — the training-pair probe on the SCC (SAM 2:
-  the carrier retrained, then every cycle pair replayed under both arms). Its five
-  family-neutral cells are verbatim copies of run_s15_scc.py's, pinned in
-  tests/test_scc.py; the checkpoint cell is its own (SAM 2 is public, sha-pinned).
-* ``run_s17b_scc.py -> run_s17b_scc.ipynb`` — S17b: the forward-only and objectness arms
-  on the same probe + test-split contract; its cells are pinned to run_s17_scc.py's.
-* ``run_s17c_scc.py -> run_s17c_scc.ipynb`` — S17c: the objectness weight grid, the lr x
-  epochs 2x2, the arch and link compositions and a 5-shot transfer fan, in one session;
-  pinned to run_s17b_scc.py's cells.
-* ``run_s17d_scc.py -> run_s17d_scc.ipynb`` — S17d: comp_arch x w10 and the soft
-  sentinel arms (+ their base variants in the probe); pinned to run_s17c_scc.py's cells
-  except commissioning (it also commissions the soft gate).
+Edit notebooks/*.py, then run this script. Shared helpers and SCC cells are
+checked for consistency by the existing notebook tests.
 """
 
 from __future__ import annotations

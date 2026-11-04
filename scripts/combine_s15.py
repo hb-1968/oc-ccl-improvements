@@ -1,45 +1,8 @@
 #!/usr/bin/env python3
-"""S15: the champion at 5-shot — one dataset's cells, seven pairings.
+"""Combine S15 five-shot cells and paired comparisons.
 
-    python scripts/combine_s15.py --out s15_beetle.zip \
-        base=... base_tta=... arch_tta=...                        (sam3, 5-shot)
-        base_1=... base_tta_1=... arch_tta_1=...                  (sam3, 1-shot: s14sam3_<ds>_*.zip)
-        sam2_base=...                                             (SAM 2, 5-shot plain: s6_<ds>.zip)
-        [sam2_base_tta=... sam2_crown=...]                        (SAM 2, 5-shot per-run cells, IF they exist)
-        [--sam2-summary s8d_<ds>.zip]                             (else: the S8d summary, for UNPAIRED level reads)
-
-    python scripts/combine_s15.py --merge --out s15.zip \
-        butterfly_major=s15_butterfly_major.zip beetle=s15_beetle.zip
-
-Every S14 arm was 1-shot; the README's S15 brief projected, from measured components
-only, what the champion (SAM 3 + per-trait/excl + arch LoRA + TTA) scores at 5-shot,
-and named the one pre-condition: sam3's tracker is built with
-``max_cond_frames_in_attn=4``, so a 5-shot episode would silently attend to 4 of 5
-supports. The adapter now sets it to -1 (all, SAM 2's own setting); every cell here
-must carry that in ``model`` or the combine refuses.
-
-Pairings, and the route each takes through `registry.compare`:
-
-  shot_lift_base        base(5)     vs base_1        nested_shots  — the raw shot lift
-  shot_lift_arch        arch_tta(5) vs arch_tta_1    nested_shots  — the champion's lift
-  tta_vs_base           base_tta    vs base          {model.tta}   — TTA at 5-shot
-  arch_vs_base_tta      arch_tta    vs base_tta      plain         — stack+arch at 5-shot
-  base_vs_sam2_base     base(5)     vs sam2_base     cross-family  — the backbone edge at 5
-  base_tta_vs_sam2_base_tta                          cross-family
-  arch_vs_sam2_crown    arch_tta(5) vs sam2_crown    cross-family  — THE HEADLINE
-
-The shot-count rows go through `compare(nested_shots=True)`, which verifies from the
-per-run ``support_ids`` that run i's 1-shot support is the first of its 5-shot draw
-before masking anything (S16's licence, re-earned at 5). The arch row additionally
-requires the SAME adapter on both sides (``finetune.lora_sha``): a shot lift measured
-across two trainings would be a training delta in disguise.
-
-The two SAM 2 TTA cells (S8d ``base_tta`` / ``occl_tta``) were never banked as
-per-run bundles — S8d shipped a summary — so they are OPTIONAL here. When absent, the
-two rows are recorded as ``None``, the S8d summary means stand in as UNPAIRED level
-reads (``unpaired``: a difference of means, no CI, no seed pairing — labelled so), and
-the paired HEADLINE falls back to the champion's own shot lift (``shot_lift_arch``,
-proven on the draws). ``results.headline_kind`` says which one shipped.
+Read the recorded support draws and preserve the distinction between paired
+within-stage effects and comparisons with earlier bundles.
 """
 
 from __future__ import annotations

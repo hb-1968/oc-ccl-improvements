@@ -1,26 +1,8 @@
 #!/usr/bin/env python3
-"""Score several LoRA arms in ONE process, sharing the image embeddings — S8c.
+"""Evaluate several adapter arms while sharing image embeddings.
 
-    python scripts/run_arms.py --dataset beetle --shot 1 --n-runs 20 \
-        --support-selection canonical_balanced --resume-dir <dir> \
-        --arms base= --arms lora_lr1e-05=/path/a.pt --arms lora_lr0.0001=/path/b.pt \
-        --run-start 0 --run-end 5
-
-**Why this exists.** `apply_lora` scopes to `memory_encoder` and `sam_mask_decoder`, so the
-image encoder is never adapted and every arm's `backbone_fpn` features are *identical*.
-Encoding is roughly 95% of a run's compute, so scoring three arms as three separate
-processes pays that 95% three times for byte-identical results. Here it is paid once and
-the arms differ only in which weights are loaded between passes.
-
-**The base arm runs FIRST, before `apply_lora` is ever called.** It could equivalently be
-run with zeroed adapters — `LoRALinear` is an exact no-op at `B = 0` — but "the model with
-no adapters attached" needs no argument, and the baseline is the reference every delta is
-measured against. It is the one arm that must be beyond question.
-
-Per-run JSON goes to the shared `--resume-dir`, keyed by a fingerprint that now includes
-the weights, so the arms cannot read each other's cache. Aggregation is a separate,
-inference-free pass per arm (`run_eval.py --no-precompute`), exactly as the existing
-fan-out merges its workers.
+Keep per-arm weight identities and banked-run keys separate. Shared encodings
+avoid repeating the frozen image encoder for each arm.
 """
 
 from __future__ import annotations

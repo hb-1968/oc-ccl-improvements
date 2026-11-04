@@ -1,20 +1,7 @@
 #!/usr/bin/env python3
-"""What is already computed in a resume directory — recovery after a failed stage.
+"""Inspect completed records and missing work in a resume directory.
 
-    python scripts/resume_status.py <resume-dir> [--expect-runs 20]
-
-Every finished (group, run, arm) writes one JSON here the moment it completes, so a stage
-that dies partway has still banked everything before the failure. The problem is only that
-nothing reports it: the choice between "re-run the lot" and "re-run the missing part" was
-previously made by launching a run and watching for `[skip]` lines.
-
-The slug is `dataset__group__shot__selection__adapter__fingerprint__run`, which is enough
-to reconstruct exactly which arms exist and which runs each is missing. Arms are separated
-by `adapter` (TTA or not) and by `fingerprint` (weights, pixel pipeline, module source), so
-a base arm and a fine-tuned arm at the same protocol appear as two rows — which is the
-point, since that is also how the resume cache keeps them apart.
-
-Copy the directory down from Drive first, or point this at the mounted path.
+Read status only; this command does not restart workers.
 """
 
 from __future__ import annotations

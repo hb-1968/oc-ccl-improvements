@@ -1,34 +1,5 @@
 #!/usr/bin/env python3
-"""One dataset x one model family — S14's five-pairing combine.
-
-    python scripts/combine_s14.py --family sam3 --out s14sam3_beetle.zip \
-        base=a.zip base_tta=b.zip stack_tta=c.zip \
-        sam2_base=<banked s11 base> sam2_base_tta=<banked s11 base_tta> \
-        sam2_pertrait_tta=<banked s11 occl_pertrait_tta>
-
-    python scripts/combine_s14.py --family sec --out s14sec_beetle.zip \
-        off=... forced=... off_tta=... stack_tta=... sam2_base=... \
-        sam2_base_tta=... sam2_pertrait_tta=...
-
-Within-family pairings use `registry.compare` as every stage since S8d has; the
-CROSS-FAMILY rows are the comparison `comparability_key` exists to refuse, and they
-go through the one sanctioned relaxation — `compare(..., ignore_fields=
-("model.family", "model.image_size"))` — which pins `support_set_hash` equality (the
-draws are model-independent by construction) and embeds the ignored fields and both
-their values in every row it produces. A cross-family number that cannot say it is
-one cannot appear in this record.
-
-Pairings emitted:
-  1. base vs sam2_base            (cross) — did the model upgrade pay, raw
-  2. base_tta vs base             (within) — TTA's value on the new family
-  3. stack_tta vs base_tta        (within) — the stack's contribution (toggle)
-  4. stack_tta vs sam2_pertrait_tta (cross) — THE DEPLOYMENT VERDICT
-  5. sec only: forced vs off      (within) — the concept delta
-plus base_tta vs sam2_base_tta (cross) for the TTA-stack base read. For sec, "base"
-duties are performed by the `off` cell (`forced` is a diagnostic arm, never a
-comparator base). Every cell lifts oracle / argmax_no_background / best3 /
-rotated_frac exactly as S13's combiner does.
-"""
+"""Combine one dataset/model family and report the five S14 paired comparisons."""
 
 from __future__ import annotations
 

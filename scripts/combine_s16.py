@@ -1,30 +1,5 @@
 #!/usr/bin/env python3
-"""S16: TTA as an implicit second shot — one dataset's {1-shot+TTA, 2-shot plain} pair.
-
-    python scripts/combine_s16.py --out s16_beetle.zip s1_tta=a.zip s2=b.zip
-
-    python scripts/combine_s16.py --merge --out s16.zip \
-        butterfly_major=s16_butterfly_major.zip beetle=s16_beetle.zip
-
-The premise: orientation TTA is analogous to an IMPLICIT 2-shot — the rotated support is
-a second reference (same specimen, second orientation) carried outside the memory bank
-and selected by a confidence rule over the logits. Explicit 2-shot puts a second real
-specimen INSIDE the bank (one 3-frame video ``{x0, x1, xq}``, the paper's own multi-shot
-construction) and lets memory attention do the selecting. Same tracker (base SAM 2, no
-adapters), same canonical protocol, the same 20 seeds; in SST's own currency the
-implicit reference is free and the explicit one costs a labelled mask.
-
-One paired row, under the plain metric and the paper's best-of-3:
-
-  second_shot_vs_tta   s2 vs s1_tta   THE HEADLINE: implicit or explicit second reference
-
-The row crosses `protocol.shots` AND `protocol.support_set_hash`, so it goes through the
-one sanctioned route — `registry.compare(nested_shots=True)` — which verifies from every
-per-run record that run i's 1-shot support is the first of its 2-shot pair before it
-masks anything, and embeds that proof in the row (it also declares the `model.tta` mask
-it crosses). A combine that cannot prove the nesting refuses rather than shipping a
-delta whose pairing is a guess.
-"""
+"""Compare one-shot TTA and two-shot plain inference on matched S16 cells."""
 
 from __future__ import annotations
 
